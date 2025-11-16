@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HECuPPS Gift Hamper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-gold': '#8E5A3B',
+              'brand-cream': '#F4EDE3',
+              'brand-dark': '#2B2B2B',
+              'brand-coral': '#E07A5F',
+            },
+            fontFamily: {
+              'playfair': ['"Playfair Display"', 'serif'],
+              'poppins': ['"Poppins"', 'sans-serif'],
+            },
+            keyframes: {
+              'fade-in-out': {
+                '0%, 100%': { opacity: 0, transform: 'translateY(-20px)' },
+                '10%, 90%': { opacity: 1, transform: 'translateY(0)' },
+              }
+            },
+            animation: {
+              'fade-in-out': 'fade-in-out 2.5s ease-in-out forwards',
+            }
+          },
+        },
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "@prisma/client": "https://aistudiocdn.com/@prisma/client@^6.19.0",
+    "jsonwebtoken": "https://aistudiocdn.com/jsonwebtoken@^9.0.2",
+    "bcrypt": "https://aistudiocdn.com/bcrypt@^6.0.0",
+    "next/": "https://aistudiocdn.com/next@^16.0.3/",
+    "events": "https://aistudiocdn.com/events@^3.3.0",
+    "zod": "https://aistudiocdn.com/zod@^4.1.12",
+    "resend": "https://aistudiocdn.com/resend@^6.4.2",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "vite": "https://aistudiocdn.com/vite@^7.2.2",
+    "@vercel/blob": "https://aistudiocdn.com/@vercel/blob@^2.0.0",
+    "tailwindcss": "https://aistudiocdn.com/tailwindcss@^4.1.17",
+    "next": "https://aistudiocdn.com/next@^16.0.3"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-cream text-brand-dark font-poppins">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
