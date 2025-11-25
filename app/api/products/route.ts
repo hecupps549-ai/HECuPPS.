@@ -1,86 +1,128 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { apiCache } from '@/lib/cache';
-import { withAdminAuth } from '@/lib/rbac';
-import { createProductSchema } from '@/lib/validator';
-import { z } from 'zod';
-import { Product } from '@/types';
+import prisma from '@/lib/prisma';
 
-// GET all products (cached)
-export async function GET(req: NextRequest) {
-  const cacheKey = 'products:all';
-  // FIX: Cast the result of apiCache.get to the correct type to resolve the type mismatch error.
-  const cachedProducts = apiCache.get(cacheKey) as Product[] | undefined;
-  if (cachedProducts) {
-    return NextResponse.json(cachedProducts);
-  }
-
-  try {
-    const products = await prisma.product.findMany({
-      where: { deletedAt: null },
-      include: { media: true, inventory: true },
-    });
-
-    const formattedProducts: Product[] = products.map(p => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        category: p.category,
-        stock: p.inventory?.stock ?? 0,
-        images: p.media.filter(m => m.type === 'IMAGE').sort((a, b) => a.order - b.order).map(m => m.url),
-        videoUrl: p.media.find(m => m.type === 'VIDEO')?.url
-    }));
-    
-    apiCache.set(cacheKey, formattedProducts, 5 * 60 * 1000); // Cache for 5 minutes
-    return NextResponse.json(formattedProducts);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Failed to fetch products' }, { status: 500 });
-  }
-}
-
-// POST a new product (admin only)
-const createProductHandler = async (req: NextRequest) => {
+// GET all products
+export async function GET(request: NextRequest) {
     try {
-        const body = await req.json();
-        const validatedData = createProductSchema.parse(body);
+        const { searchParams } = new URL(request.url);
+        const category = searchParams.get('category');
+        const status = searchParams.get('status');
 
-        const { stock, images, videoUrl, ...productData } = validatedData;
-        
-        const newProduct = await prisma.product.create({
-            data: {
-                ...productData,
-                inventory: {
-                    create: {
-                        stock,
-                    },
+        const where: any = {};
+        if (category) where.category = category;
+        if (status) where.status = status;
+
+        const products = await prisma.product.findMany({
+            where,
+            include: {
+                images: {
+                    orderBy: { order: 'asc' },
                 },
-                media: {
-                    create: [
-                        ...images.map((url, index) => ({
-                            url,
-                            type: 'IMAGE',
-                            order: index,
-                        })),
-                        ...(videoUrl ? [{ url: videoUrl, type: 'VIDEO', order: 99 }] : [])
-                    ]
-                },
+                digitalFiles: true,
             },
-            include: { inventory: true, media: true },
+            orderBy: { createdAt: 'desc' },
         });
 
-        apiCache.delete('products:all'); // Invalidate cache
-
-        return NextResponse.json(newProduct, { status: 201 });
-
+        return NextResponse.json({ products });
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return NextResponse.json({ message: 'Validation failed', errors: error.issues }, { status: 400 });
-        }
-        console.error(error);
-        return NextResponse.json({ message: 'Failed to create product' }, { status: 500 });
+        console.error('Error fetching products:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch products' },
+            { status: 500 }
+        );
     }
 }
 
-export const POST = withAdminAuth(['SUPER_ADMIN', 'PRODUCT_MANAGER'], createProductHandler);
+// POST create new product
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const {
+            name,
+            description,
+            category,
+            priceINR,
+            priceCAD,
+            stock,
+            status,
+            featured,
+            images,
+        } = body;
+
+        console.log('[Product Creation] Request body:', JSON.stringify(body, null, 2));
+
+        // Validate required fields
+        if (!name || !priceINR || !priceCAD) {
+            console.error('[Product Creation] Missing required fields:', { name, priceINR, priceCAD });
+            return NextResponse.json(
+                { error: 'Missing required fields: name, priceINR, and priceCAD are required' },
+                { status: 400 }
+            );
+        }
+
+        // Validate numeric fields
+        const parsedPriceINR = parseFloat(priceINR);
+        const parsedPriceCAD = parseFloat(priceCAD);
+        const parsedStock = parseInt(stock) || 0;
+
+        if (isNaN(parsedPriceINR) || isNaN(parsedPriceCAD)) {
+            console.error('[Product Creation] Invalid price values:', { priceINR, priceCAD });
+            return NextResponse.json(
+                { error: 'Invalid price values. Prices must be valid numbers.' },
+                { status: 400 }
+            );
+        }
+
+        console.log('[Product Creation] Creating product with data:', {
+            name,
+            priceINR: parsedPriceINR,
+            priceCAD: parsedPriceCAD,
+            stock: parsedStock,
+            category,
+            status: status || 'Active',
+            featured: featured || false,
+            imageCount: images?.length || 0
+        });
+
+        // Create product with default price for backward compatibility
+        const product = await prisma.product.create({
+            data: {
+                name,
+                description,
+                category,
+                priceINR: parsedPriceINR,
+                priceCAD: parsedPriceCAD,
+                price: parsedPriceINR, // Default to INR
+                stock: parsedStock,
+                status: status || 'Active',
+                featured: featured || false,
+                images: {
+                    create: images?.map((img: any, index: number) => ({
+                        url: img.url,
+                        altText: img.altText || name,
+                        isPrimary: index === 0,
+                        order: index,
+                    })) || [],
+                },
+            },
+            include: {
+                images: true,
+            },
+        });
+
+        console.log('[Product Creation] Successfully created product:', product.id);
+        return NextResponse.json({ product }, { status: 201 });
+    } catch (error: any) {
+        console.error('[Product Creation] Error creating product:', error);
+        console.error('[Product Creation] Error details:', {
+            message: error.message,
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+        });
+        return NextResponse.json(
+            { error: error.message || 'Failed to create product' },
+            { status: 500 }
+        );
+    }
+}

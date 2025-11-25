@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/UI/Button';
-import { Input } from '@/components/UI/Input';
+import { Button, Input } from '@/components/UI';
 import { TESTIMONIALS } from '@/constants';
 
 const HomePage = () => {

@@ -5,23 +5,24 @@ import { prisma } from '@/lib/prisma';
 const getUsersHandler = async (req: NextRequest) => {
     try {
         const users = await prisma.user.findMany({
-            where: {
-                deletedAt: null
-            },
             select: {
                 id: true,
                 name: true,
                 email: true,
-                address: true,
                 status: true,
+                emailVerified: true,
                 createdAt: true,
-                // Do not select password
+                updatedAt: true,
+                // Do not select password or other sensitive fields
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         });
-        return NextResponse.json(users);
+        return NextResponse.json({ users });
     } catch (error) {
         console.error("Failed to fetch users:", error);
-        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 };
 

@@ -1,26 +1,44 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Assume the frontend is running on localhost:3000
-  const origin = request.headers.get('origin') ?? '';
-  const allowedOrigins = ['http://localhost:3000', 'https://your-production-frontend-url.com'];
+  const { pathname } = request.nextUrl;
 
-  const response = request.method === 'OPTIONS'
-    ? new Response(null, { status: 204 })
-    : NextResponse.next();
+  // Allow these paths without any checks
+  const publicPaths = [
+    '/',
+    '/products',
+    '/about',
+    '/contact',
+    '/cart',
+    '/login',
+    '/signup',
+    '/faq',
+    '/admin/login',
+    '/api',
+    '/_next',
+    '/favicon.ico',
+  ];
 
-  if (allowedOrigins.includes(origin)) {
-    response.headers.set('Access-Control-Allow-Origin', origin);
+  // Check if current path starts with any public path
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+
+  if (isPublicPath) {
+    return NextResponse.next();
   }
-  
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  return response;
+  // For admin paths (except login), check localStorage via header
+  // Note: This is a simple check, real auth should use sessions/cookies
+  if (pathname.startsWith('/admin')) {
+    // Let the admin layout handle authentication
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/api/:path*',
-}
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+};

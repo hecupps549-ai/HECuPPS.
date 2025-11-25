@@ -1,76 +1,360 @@
-// DATABASE CONNECTION
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 datasource db {
   provider = "mysql"
-  url      = env("centerbeam.proxy.rlwy.net:14510")   // your Railway MySQL URLnpx
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// ✔ USERS (Customers + Admins)
+// ==========================================
+// AUTHENTICATION & USER MANAGEMENT
+// ==========================================
+
+// Regular customers
 model User {
-  id            Int       @id @default(autoincrement())
-  name          String
-  email         String     @unique
-  password      String
-  role          String     @default("customer")  // "customer" | "admin"
-  createdAt     DateTime   @default(now())
-  orders        Order[]
+  id                Int               @id @default(autoincrement())
+  name              String
+  email             String            @unique
+  password          String
+  emailVerified     Boolean           @default(false)
+  resetToken        String?           @unique
+  resetTokenExpiry  DateTime?
+  status            String            @default("Active") // Active, Blocked
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  orders            Order[]
+  supportTickets    SupportTicket[]
+  
+  @@index([email])
+  @@index([resetToken])
 }
 
-// ✔ PRODUCTS (Gift Hampers)
+// Admin users with role hierarchy
+model Admin {
+  id                Int               @id @default(autoincrement())
+  username          String            @unique
+  email             String?           @unique
+  password          String
+  role              String            @default("Admin") // SuperAdmin, Admin
+  status            String            @default("Active")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lastLogin         DateTime?
+  
+  @@index([username])
+  @@index([email])
+}
+
+// ==========================================
+// PRODUCT MANAGEMENT
+// ==========================================
+
 model Product {
-  id            Int        @id @default(autoincrement())
-  name          String
-  description   String?
-  price         Float
-  imageUrl      String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  orders        OrderItem[]
+  id                Int               @id @default(autoincrement())
+  name              String
+  description       String?           @db.Text
+  category          String?
+  priceINR          Float?
+  priceCAD          Float?
+  price             Float             // Default/base price for backward compatibility
+  stock             Int               @default(0)
+  status            String            @default("Active") // Active, Inactive, OutOfStock
+  featured          Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  images            ProductImage[]
+  digitalFiles      DigitalFile[]
+  orderItems        OrderItem[]
+  
+  @@index([category])
+  @@index([status])
+  @@index([featured])
 }
 
-// ✔ ORDERS
+model ProductImage {
+  id                Int               @id @default(autoincrement())
+  productId         Int
+  url               String
+  altText           String?
+  isPrimary         Boolean           @default(false)
+  order             Int               @default(0)
+  createdAt         DateTime          @default(now())
+  
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([productId])
+}
+
+model DigitalFile {
+  id                Int               @id @default(autoincrement())
+  productId         Int
+  name              String
+  url               String            // Secure blob storage URL
+  size              Int               // File size in bytes
+  type              String            // MIME type
+  downloadLimit     Int?              // Max downloads per purchase
+  expiryDays        Int?              // Days until download link expires
+  createdAt         DateTime          @default(now())
+  
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([productId])
+}
+
+// ==========================================
+// ORDER MANAGEMENT
+// ==========================================
+
 model Order {
-  id            Int         @id @default(autoincrement())
-  userId        Int
-  totalAmount   Float
-  status        String       @default("pending")  // pending, confirmed, delivered, cancelled
-  createdAt     DateTime     @default(now())
-
-  user          User         @relation(fields: [userId], references: [id])
-  items         OrderItem[]
+  id                Int               @id @default(autoincrement())
+  userId            Int
+  
+  // Order details
+  totalAmount       Float
+  currency          String            @default("INR") // INR, CAD
+  status            String            @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, COMPLETED, CANCELLED, REFUNDED
+  orderType         String            @default("online") // online, manual (Instagram orders)
+  
+  // Payment details
+  paymentGateway    String?           // razorpay, stripe, paypal, interac
+  paymentStatus     String            @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  transactionId     String?           @unique
+  paymentDetails    String?           @db.Text // JSON string for additional payment info
+  
+  // Shipping details
+  shippingName      String
+  shippingEmail     String
+  shippingPhone     String
+  shippingAddress   String            @db.Text
+  trackingNumber    String?
+  
+  // Coupon
+  couponId          Int?
+  discountAmount    Float             @default(0)
+  
+  // Timestamps
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  completedAt       DateTime?
+  
+  // Relations
+  user              User              @relation(fields: [userId], references: [id])
+  coupon            Coupon?           @relation(fields: [couponId], references: [id])
+  items             OrderItem[]
+  downloads         Download[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([transactionId])
+  @@index([couponId])
+  @@index([createdAt])
 }
 
-// ✔ ORDER ITEMS (multiple products inside one order)
 model OrderItem {
-  id         Int      @id @default(autoincrement())
-  orderId    Int
-  productId  Int
-  quantity   Int      @default(1)
-
-  order      Order    @relation(fields: [orderId], references: [id])
-  product    Product  @relation(fields: [productId], references: [id])
+  id                Int               @id @default(autoincrement())
+  orderId           Int
+  productId         Int
+  quantity          Int               @default(1)
+  priceAtPurchase   Float             // Price when purchased
+  
+  order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product           Product           @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
 }
 
-// ✔ COUPONS
+model Download {
+  id                Int               @id @default(autoincrement())
+  orderId           Int
+  digitalFileId     Int
+  downloadCount     Int               @default(0)
+  expiresAt         DateTime?
+  createdAt         DateTime          @default(now())
+  lastDownloadAt    DateTime?
+  
+  order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+}
+
+// ==========================================
+// COUPON SYSTEM
+// ==========================================
+
 model Coupon {
-  id          Int        @id @default(autoincrement())
-  code        String     @unique
-  discount    Float
-  expiresAt   DateTime?
-  createdAt   DateTime   @default(now())
+  id                Int               @id @default(autoincrement())
+  code              String            @unique
+  discountType      String            // flat, percentage
+  value             Float             // Amount or percentage value
+  minPurchase       Float             @default(0)
+  startDate         DateTime          @default(now())
+  expiryDate        DateTime?
+  usageLimit        Int?              // Total usage limit
+  timesUsed         Int               @default(0)
+  status            String            @default("Active") // Active, Inactive, Expired
+  description       String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  orders            Order[]
+  
+  @@index([code])
+  @@index([status])
 }
 
-// ✔ CONTACT FORM / CUSTOMER MESSAGE
+// ==========================================
+// SUPPORT SYSTEM
+// ==========================================
+
+model SupportTicket {
+  id                Int               @id @default(autoincrement())
+  userId            Int?
+  userName          String
+  userEmail         String
+  subject           String
+  message           String            @db.Text
+  status            String            @default("OPEN") // OPEN, PENDING, RESOLVED, CLOSED
+  priority          String            @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  reply             String?           @db.Text
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  resolvedAt        DateTime?
+  
+  user              User?             @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+  @@index([userEmail])
+}
+
+model FAQ {
+  id                Int               @id @default(autoincrement())
+  question          String
+  answer            String            @db.Text
+  category          String?
+  order             Int               @default(0)
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+// ==========================================
+// SITE SETTINGS
+// ==========================================
+
+model SiteSettings {
+  id                Int               @id @default(autoincrement())
+  siteName          String            @default("HECuPPS")
+  logoUrl           String?
+  footerText        String?           @db.Text
+  currency          String            @default("INR") // Primary currency
+  taxRate           Float             @default(0)
+  updatedAt         DateTime          @updatedAt
+  
+  // Contact info
+  contactEmail      String?
+  contactPhone      String?
+  instagramUrl      String?
+  
+  // Feature toggles
+  maintenanceMode   Boolean           @default(false)
+  allowSignups      Boolean           @default(true)
+  
+  @@map("site_settings")
+}
+
+model PaymentSettings {
+  id                Int               @id @default(autoincrement())
+  
+  // Razorpay (INR)
+  razorpayEnabled   Boolean           @default(false)
+  razorpayKeyId     String?
+  razorpayKeySecret String?
+  razorpayWebhook   String?
+  
+  // Stripe (CAD)
+  stripeEnabled     Boolean           @default(false)
+  stripePublishKey  String?
+  stripeSecretKey   String?
+  stripeWebhook     String?
+  
+  // PayPal
+  paypalEnabled     Boolean           @default(false)
+  paypalClientId    String?
+  paypalSecret      String?
+  
+  // Interac (Manual)
+  interacEnabled    Boolean           @default(false)
+  interacEmail      String?
+  interacInstructions String?         @db.Text
+  
+  updatedAt         DateTime          @updatedAt
+  
+  @@map("payment_settings")
+}
+
+// ==========================================
+// EMAIL TEMPLATES
+// ==========================================
+
+model EmailTemplate {
+  id                Int               @id @default(autoincrement())
+  name              String            @unique // welcome, order_confirmation, password_reset, etc.
+  subject           String
+  body              String            @db.Text // HTML template
+  variables         String?           @db.Text // JSON array of available variables
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  @@index([name])
+}
+
+// ==========================================
+// BACKUP & LOGS
+// ==========================================
+
+model BackupLog {
+  id                Int               @id @default(autoincrement())
+  type              String            // products, users, orders, coupons, full
+  fileName          String
+  fileSize          Int               // Bytes
+  status            String            // success, failed
+  errorMessage      String?           @db.Text
+  createdAt         DateTime          @default(now())
+  
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ==========================================
+// LEGACY CONTACT FORM
+// ==========================================
+
 model ContactMessage {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  phone     String?
-  message   String
-  createdAt DateTime @default(now())
+  id                Int               @id @default(autoincrement())
+  name              String
+  email             String
+  phone             String?
+  message           String            @db.Text
+  status            String            @default("NEW") // NEW, READ, REPLIED
+  createdAt         DateTime          @default(now())
+  
+  @@index([status])
+  @@index([email])
 }
-
-

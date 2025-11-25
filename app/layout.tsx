@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Playfair_Display, Poppins } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
+import { Navbar, Footer } from '@/components/Navbar';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -30,7 +31,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${playfair.variable} ${poppins.variable} font-poppins bg-brand-cream text-brand-dark`}>
         <AppProvider>
-            {children}
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
         </AppProvider>
       </body>
     </html>
