@@ -745,4 +745,22 @@ const FaqPage = () => {
                 <h1 className="text-5xl font-playfair font-bold text-center mb-12 text-brand-dark dark:text-brand-cream">Frequently Asked Questions</h1>
                 <div className="space-y-4">
                     {FAQ_ITEMS.map((item, index) => (
-                        <div key={index} className="border-b dark:border-
+                        <div key={index} className="border-b dark:border-// Add export for UserPages component matching the structure of AdminPages
+export const UserPages = () => {
+    return (
+        <UserLayout>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+                <Route path="/order-failed" element={<OrderFailedPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/faq" element={<FaqPage />} />
+            </Routes>
+        </UserLayout>
+    );
+};
