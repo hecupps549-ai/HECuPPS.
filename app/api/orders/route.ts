@@ -38,7 +38,8 @@ export async function POST(req: NextRequest) {
 
 
     // Use a transaction to ensure atomicity
-    const newOrder = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const newOrder = await prisma.$transaction(async (tx: any) => {
       for (const item of items) {
         const inventory = await tx.inventory.findUnique({
           where: { productId: item.id },
