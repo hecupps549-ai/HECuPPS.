@@ -32,13 +32,13 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
   // FIX: Use import.meta.env for Vite environment variables and cast to any to bypass TypeScript error.
   const apiUrl = (import.meta as any).env.VITE_API_URL || '';
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-  
+
   const isFormData = options.body instanceof FormData;
 
-  const headers: HeadersInit = {
-    ...options.headers,
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
   };
-  
+
   if (!isFormData) {
     headers['Content-Type'] = 'application/json';
   }
@@ -46,7 +46,7 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  
+
   const response = await fetch(`${apiUrl}/api${endpoint}`, { ...options, headers });
 
   if (!response.ok) {
@@ -152,21 +152,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const arePaymentsEnabled = Object.values(settings.paymentGateways).some(gateway => (gateway as { enabled: boolean }).enabled);
 
-    const fetchAdminData = async () => {
-      const [usersData, ordersData, couponsData, ticketsData, reportsData, backupsData] = await Promise.all([
-          apiRequest('/admin/users'),
-          apiRequest('/admin/orders'),
-          apiRequest('/admin/coupons'),
-          apiRequest('/admin/support-tickets'),
-          apiRequest('/admin/reports'),
-          apiRequest('/admin/backups'),
-      ]);
-      setUsers(usersData || []);
-      setOrders(ordersData || []);
-      setCoupons(couponsData || []);
-      setSupportTickets(ticketsData || []);
-      setReports(reportsData || []);
-      setBackups(backupsData || []);
+  const fetchAdminData = async () => {
+    const [usersData, ordersData, couponsData, ticketsData, reportsData, backupsData] = await Promise.all([
+      apiRequest('/admin/users'),
+      apiRequest('/admin/orders'),
+      apiRequest('/admin/coupons'),
+      apiRequest('/admin/support-tickets'),
+      apiRequest('/admin/reports'),
+      apiRequest('/admin/backups'),
+    ]);
+    setUsers(usersData || []);
+    setOrders(ordersData || []);
+    setCoupons(couponsData || []);
+    setSupportTickets(ticketsData || []);
+    setReports(reportsData || []);
+    setBackups(backupsData || []);
   };
 
   useEffect(() => {
@@ -209,22 +209,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  
+
   const updateSettings = async (newSettings: Partial<Settings>) => {
     const updatedSettings = await apiRequest('/admin/settings', { method: 'PUT', body: JSON.stringify(newSettings) });
     setSettings(updatedSettings);
   };
-  
+
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newProduct = await apiRequest('/products', { method: 'POST', body: JSON.stringify(productData) });
     setProducts(prev => [...prev, newProduct]);
   };
-  
+
   const updateProduct = async (productData: Product) => {
     const updatedProduct = await apiRequest(`/products/${productData.id}`, { method: 'PUT', body: JSON.stringify(productData) });
     setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
   };
-  
+
   const deleteProduct = async (productId: string) => {
     await apiRequest(`/products/${productId}`, { method: 'DELETE' });
     setProducts(prev => prev.filter(p => p.id !== productId));
@@ -247,61 +247,61 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const loginUser = async (email: string, password: string): Promise<'success' | 'blocked' | 'invalid'> => {
     try {
-        const data = await apiRequest('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-        if (data.user.status === 'BLOCKED') return 'blocked';
-        
-        localStorage.setItem('authToken', data.token);
-        setUser(data.user);
-        const userOrders = await apiRequest('/orders/my-orders');
-        setOrders(userOrders);
-        return 'success';
+      const data = await apiRequest('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      if (data.user.status === 'BLOCKED') return 'blocked';
+
+      localStorage.setItem('authToken', data.token);
+      setUser(data.user);
+      const userOrders = await apiRequest('/orders/my-orders');
+      setOrders(userOrders);
+      return 'success';
     } catch (error) {
-        console.error("Login failed:", error);
-        return 'invalid';
+      console.error("Login failed:", error);
+      return 'invalid';
     }
   };
 
   const signupUser = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-        const data = await apiRequest('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) });
-        localStorage.setItem('authToken', data.token);
-        setUser(data.user);
-        return true;
+      const data = await apiRequest('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+      localStorage.setItem('authToken', data.token);
+      setUser(data.user);
+      return true;
     } catch (error) {
-        console.error("Signup failed:", error);
-        return false;
+      console.error("Signup failed:", error);
+      return false;
     }
   };
-  
+
   const logoutUser = () => {
-      setUser(null);
-      localStorage.removeItem('authToken');
-      setOrders([]);
+    setUser(null);
+    localStorage.removeItem('authToken');
+    setOrders([]);
   };
 
   const loginAdmin = async (password: string) => {
-      try {
-        const data = await apiRequest('/auth/admin/login', { method: 'POST', body: JSON.stringify({ password }) });
-        localStorage.setItem('authToken', data.token);
-        sessionStorage.setItem('isAdmin', 'true');
-        setAdmin(true);
-        await fetchAdminData();
-        return true;
-      } catch (error) {
-        return false;
-      }
+    try {
+      const data = await apiRequest('/auth/admin/login', { method: 'POST', body: JSON.stringify({ password }) });
+      localStorage.setItem('authToken', data.token);
+      sessionStorage.setItem('isAdmin', 'true');
+      setAdmin(true);
+      await fetchAdminData();
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
   const logoutAdmin = () => {
-      setAdmin(false);
-      localStorage.removeItem('authToken');
-      sessionStorage.removeItem('isAdmin');
+    setAdmin(false);
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('isAdmin');
   };
 
   const updateUserStatus = async (userId: string, status: 'Active' | 'Blocked') => {
     const updatedUser = await apiRequest(`/admin/users/${userId}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
     setUsers(users.map(u => u.id === userId ? updatedUser : u));
   };
-  
+
   const deleteUser = async (userId: string) => {
     await apiRequest(`/admin/users/${userId}`, { method: 'DELETE' });
     setUsers(users.filter(u => u.id !== userId));
@@ -313,13 +313,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const refundOrder = async (orderId: string) => {
-      const refundedOrder = await apiRequest(`/admin/orders/${orderId}/refund`, { method: 'POST' });
-      setOrders(orders.map(o => o.id === orderId ? refundedOrder : o));
+    const refundedOrder = await apiRequest(`/admin/orders/${orderId}/refund`, { method: 'POST' });
+    setOrders(orders.map(o => o.id === orderId ? refundedOrder : o));
   };
 
   const deleteOrder = async (orderId: string) => {
-      await apiRequest(`/admin/orders/${orderId}`, { method: 'DELETE' });
-      setOrders(prev => prev.filter(o => o.id !== orderId));
+    await apiRequest(`/admin/orders/${orderId}`, { method: 'DELETE' });
+    setOrders(prev => prev.filter(o => o.id !== orderId));
   };
 
   const addSupportTicket = async (ticketData: Omit<SupportTicket, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'reply'>) => {
@@ -331,7 +331,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updatedTicket = await apiRequest(`/admin/support-tickets/${ticketId}`, { method: 'PUT', body: JSON.stringify(updates) });
     setSupportTickets(prev => prev.map(t => t.id === ticketId ? updatedTicket : t));
   };
-  
+
   const deleteSupportTicket = async (ticketId: string) => {
     await apiRequest(`/admin/support-tickets/${ticketId}`, { method: 'DELETE' });
     setSupportTickets(prev => prev.filter(t => t.id !== ticketId));
@@ -343,7 +343,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const restoreBackup = async (backupId: string) => {
-    if(!window.confirm("Are you sure? This will overwrite all current data.")) return;
+    if (!window.confirm("Are you sure? This will overwrite all current data.")) return;
     await apiRequest(`/admin/backups/${backupId}/restore`, { method: 'POST' });
     alert("Restore process initiated. Fetching updated data...");
     await fetchAdminData();
@@ -361,37 +361,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const placeOrder = async (shippingDetails: Order['shippingAddress'], cartItems: CartItem[], total: number): Promise<{ success: boolean; order?: Order }> => {
     try {
-        const result = await apiRequest('/orders', { method: 'POST', body: JSON.stringify({ shippingDetails, items: cartItems, totalAmount: total }) });
-        if (result.order) {
-            setOrders(prev => [result.order, ...prev]);
-            clearCart();
-            return { success: true, order: result.order };
-        }
-        return { success: false };
+      const result = await apiRequest('/orders', { method: 'POST', body: JSON.stringify({ shippingDetails, items: cartItems, totalAmount: total }) });
+      if (result.order) {
+        setOrders(prev => [result.order, ...prev]);
+        clearCart();
+        return { success: true, order: result.order };
+      }
+      return { success: false };
     } catch (error) {
-        return { success: false };
+      return { success: false };
     }
   };
 
   const addManualOrder = async (orderData: any): Promise<{ success: boolean, order?: Order }> => {
     try {
-        const result = await apiRequest('/admin/orders/manual', { method: 'POST', body: JSON.stringify(orderData) });
-        if(result.order) {
-            setOrders(prev => [result.order, ...prev]);
-            return { success: true, order: result.order };
-        }
-        return { success: false };
-    } catch(err) {
-        return { success: false };
+      const result = await apiRequest('/admin/orders/manual', { method: 'POST', body: JSON.stringify(orderData) });
+      if (result.order) {
+        setOrders(prev => [result.order, ...prev]);
+        return { success: true, order: result.order };
+      }
+      return { success: false };
+    } catch (err) {
+      return { success: false };
     }
   };
-  
-  if(isInitialLoading) {
+
+  if (isInitialLoading) {
     return <div className="flex items-center justify-center h-screen w-screen"><div className="w-16 h-16 border-4 border-t-brand-gold border-gray-200 rounded-full animate-spin"></div></div>;
   }
 
   return (
-    <AppContext.Provider value={{ 
+    <AppContext.Provider value={{
       theme, toggleTheme,
       settings, setSettings, updateSettings,
       products, setProducts, addProduct, updateProduct, deleteProduct,
