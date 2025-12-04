@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { getUserIdFromRequest } from '@/lib/auth';
 import eventEmitter from '@/lib/events';
 import { generateOrderId } from '@/lib/utils';
@@ -34,9 +35,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { items, totalAmount, shippingDetails } = createOrderSchema.parse(body);
-    
+
+
     // Use a transaction to ensure atomicity
-    const newOrder = await prisma.$transaction(async (tx) => {
+    const newOrder = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       for (const item of items) {
         const inventory = await tx.inventory.findUnique({
           where: { productId: item.id },
