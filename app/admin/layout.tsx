@@ -53,6 +53,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     const isActive = (path: string) => {
+        if (!pathname) return false;
         if (path === '/admin') {
             return pathname === '/admin';
         }
@@ -80,8 +81,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                     href={item.path}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive(item.path)
-                                            ? 'bg-brand-gold text-white'
-                                            : 'hover:bg-gray-800 text-gray-300'
+                                        ? 'bg-brand-gold text-white'
+                                        : 'hover:bg-gray-800 text-gray-300'
                                         }`}
                                 >
                                     <span className="text-xl mr-3">{item.icon}</span>
