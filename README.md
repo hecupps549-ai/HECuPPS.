@@ -9,7 +9,7 @@ The entire platform is built as a single Next.js project, leveraging the App Rou
 -   **Framework**: Next.js 14 (App Router)
 -   **ORM**: Prisma with a MySQL database.
 -   **Database Hosting**: Railway (recommended) or any MySQL provider.
--   **File Storage**: Vercel Blob for all media assets (product images, videos, etc.).
+-   **File Storage**: Vercel Blob for all media assets with built-in media management.
 -   **Authentication**: JWT-based authentication for both users and administrators.
 -   **Styling**: Tailwind CSS.
 -   **Validation**: Zod for API input validation.
@@ -41,7 +41,24 @@ The entire platform is built as a single Next.js project, leveraging the App Rou
     npx prisma migrate dev --name init
     ```
 
-## 3. Environment Variables
+### Vercel Blob Storage
+
+HECuPPS uses Vercel Blob for storing all media assets (product images, videos, and digital products).
+
+**Setup Instructions:**
+
+1. Create a Blob store in your [Vercel Dashboard](https://vercel.com/dashboard) under Storage
+2. Copy the `BLOB_READ_WRITE_TOKEN` from the store settings
+3. Add it to your `.env` file
+
+```env
+# Vercel Blob Storage (Create a store in your Vercel project dashboard)
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
+```
+
+📚 **For detailed setup instructions, usage examples, and troubleshooting**, see [Vercel Blob Setup Guide](./docs/VERCEL_BLOB_SETUP.md)
+
+### Other Environment Variables
 
 Create a `.env` file in the root of your project with the following variables:
 
@@ -87,12 +104,38 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
-## 5. Deployment to Vercel
+## 5. Deployment
 
-1.  Push your code to a Git repository (GitHub, GitLab, Bitbucket).
-2.  Import the repository into your Vercel account.
-3.  Configure all the required environment variables in the Vercel project settings. Use your production `DATABASE_URL`.
-4.  Vercel will automatically detect the Next.js project and deploy it. The build command (`npm run build`) will also run `prisma generate`.
+### Quick Deploy to Vercel + Railway
+
+HEcUPPS is designed to deploy seamlessly to:
+- **Vercel** - Next.js application + Blob storage
+- **Railway** - MySQL database
+
+📚 **Follow the complete step-by-step guide:** [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md)
+
+**Quick Overview:**
+
+1. **Set up Database (Railway)**
+   - Create MySQL database
+   - Get `DATABASE_URL`
+
+2. **Set up Application (Vercel)**
+   - Import GitHub repository
+   - Configure environment variables
+   - Create Blob storage
+
+3. **Run Migrations**
+   ```bash
+   DATABASE_URL="your-railway-url" npx prisma migrate deploy
+   npm run db:seed
+   ```
+
+4. **Deploy & Test**
+   - Automatic deployment on push
+   - Access admin at `/admin/login`
+
+For detailed instructions, troubleshooting, and production checklist, see the [full deployment guide](./docs/DEPLOYMENT_GUIDE.md).
 
 ## 6. Legacy Data Migration
 

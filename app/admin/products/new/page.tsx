@@ -202,16 +202,106 @@ export default function NewProductPage() {
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                             Product Images
                         </h2>
+
+                        {/* Upload Section */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Upload Images
+                            </label>
+                            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-brand-gold transition-colors">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={async (e) => {
+                                        const files = e.target.files;
+                                        if (!files || files.length === 0) return;
+
+                                        setLoading(true);
+                                        try {
+                                            const uploadedUrls: string[] = [];
+                                            for (const file of Array.from(files)) {
+                                                const formData = new FormData();
+                                                formData.append('file', file);
+                                                formData.append('folder', 'products/images');
+
+                                                const response = await fetch('/api/upload', {
+                                                    method: 'POST',
+                                                    body: formData,
+                                                });
+
+                                                if (response.ok) {
+                                                    const data = await response.json();
+                                                    uploadedUrls.push(data.url);
+                                                } else {
+                                                    const error = await response.json();
+                                                    throw new Error(error.message || 'Upload failed');
+                                                }
+                                            }
+
+                                            // Add uploaded URLs to existing URLs
+                                            setImageUrls(prev => {
+                                                const filtered = prev.filter(url => url.trim());
+                                                return [...filtered, ...uploadedUrls, ''];
+                                            });
+
+                                            alert(`Successfully uploaded ${uploadedUrls.length} image(s)`);
+                                        } catch (error) {
+                                            console.error('Upload error:', error);
+                                            alert(error instanceof Error ? error.message : 'Failed to upload images');
+                                        } finally {
+                                            setLoading(false);
+                                            e.target.value = ''; // Reset input
+                                        }
+                                    }}
+                                    className="hidden"
+                                    id="image-upload"
+                                />
+                                <label
+                                    htmlFor="image-upload"
+                                    className="cursor-pointer inline-flex flex-col items-center"
+                                >
+                                    <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        Click to upload or drag and drop
+                                    </span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                        PNG, JPG, GIF up to 10MB
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Image URLs Section */}
                         <div className="space-y-3">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Image URLs (or use upload above)
+                            </label>
                             {imageUrls.map((url, index) => (
                                 <div key={index} className="flex gap-2">
-                                    <Input
-                                        label={index === 0 ? 'Primary Image URL' : `Image ${index + 1} URL`}
-                                        value={url}
-                                        onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                                        placeholder="https://example.com/image.jpg"
-                                        className="flex-1"
-                                    />
+                                    <div className="flex-1">
+                                        <Input
+                                            label={index === 0 ? 'Primary Image URL' : `Image ${index + 1} URL`}
+                                            value={url}
+                                            onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                                            placeholder="https://example.com/image.jpg or upload above"
+                                            className="flex-1"
+                                        />
+                                        {url && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={url}
+                                                    alt={`Preview ${index + 1}`}
+                                                    className="w-24 h-24 object-cover rounded-lg border border-gray-200"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                     {imageUrls.length > 1 && (
                                         <button
                                             type="button"
@@ -228,11 +318,8 @@ export default function NewProductPage() {
                                 onClick={addImageUrl}
                                 className="text-brand-gold hover:underline text-sm font-medium"
                             >
-                                + Add Another Image
+                                + Add Another Image URL
                             </button>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Tip: You can use free image hosting services like Imgur or upload to your own CDN
-                            </p>
                         </div>
                     </Card>
 
