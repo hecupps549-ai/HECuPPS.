@@ -13,7 +13,7 @@ The entire platform is built as a single Next.js project, leveraging the App Rou
 -   **Authentication**: JWT-based authentication for both users and administrators.
 -   **Styling**: Tailwind CSS.
 -   **Validation**: Zod for API input validation.
--   **Email**: Resend for transactional emails.
+-   **Email**: Elastic Email for transactional emails.
 
 ## 2. Getting Started
 
@@ -58,9 +58,30 @@ BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
 
 📚 **For detailed setup instructions, usage examples, and troubleshooting**, see [Vercel Blob Setup Guide](./docs/VERCEL_BLOB_SETUP.md)
 
-### Other Environment Variables
+### Email
 
 Create a `.env` file in the root of your project with the following variables:
+
+### Elastic Email
+
+HECuPPS uses Elastic Email for transactional emails (order confirmations, password resets, etc.).
+
+**Setup Instructions:**
+
+1. Create account at [Elastic Email](https://elasticemail.com/)
+2. Verify your sending domain
+3. Generate an API key
+4. Add to your `.env` file
+
+```env
+# Elastic Email (Get API key from elasticemail.com/account#/settings/new/create-api)
+ELASTICEMAIL_API_KEY="your_api_key_here"
+EMAIL_FROM="HECuPPS <noreply@hecupps.com>"
+```
+
+📚 **For detailed setup instructions and troubleshooting**, see [Elastic Email Setup Guide](./docs/ELASTIC_EMAIL_SETUP.md)
+
+### Other Environment Variables
 
 ```env
 # Database (Get this from your provider, e.g., Railway)
@@ -70,28 +91,15 @@ DATABASE_URL="mysql://user:password@host:port/database"
 BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
 
 # JWT Authentication
+# JWT Authentication
 JWT_SECRET="your_strong_jwt_secret_key_for_access_tokens"
 JWT_REFRESH_SECRET="your_strong_jwt_refresh_secret_key"
-
-# Admin Master Credentials (For initial admin access via /master-key-login)
-ADMIN_MASTER_USERNAME="masteradmin"
-ADMIN_MASTER_PASSWORD="a_very_secure_master_password"
-
-# Email Configuration (Using Resend)
-EMAIL_API_KEY="re_..."
-FROM_EMAIL="HECuPPS <noreply@yourdomain.com>"
 
 # Frontend URL (Used for generating links, CORS, etc.)
 # For local dev:
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 # For production:
 # NEXT_PUBLIC_APP_URL="https://your-production-url.com"
-
-# API URL - this is derived from the app url
-# For local dev:
-VITE_API_URL="http://localhost:3000"
-# For production:
-# VITE_API_URL="https://your-production-url.com"
 ```
 
 ## 4. Running the Application
