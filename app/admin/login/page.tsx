@@ -19,8 +19,9 @@ export default function AdminLoginPage() {
         // TODO: Implement actual authentication with NextAuth
         // For now, check default credentials
         if (formData.username === 'HECUPPS.main.admin' && formData.password === 'HECCUPPs1786.admin.admin') {
-            // Store a temporary session flag
-            localStorage.setItem('admin-session', 'true');
+            // Store authentication tokens to match AppContext
+            localStorage.setItem('authToken', 'admin-temp-token');
+            sessionStorage.setItem('isAdmin', 'true');
             router.push('/admin');
         } else {
             setError('Invalid username or password');

@@ -18,8 +18,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Check authentication
     useEffect(() => {
         if (pathname !== '/admin/login') {
-            const session = localStorage.getItem('admin-session');
-            if (!session) {
+            const authToken = localStorage.getItem('authToken');
+            const isAdmin = sessionStorage.getItem('isAdmin');
+            if (!authToken || isAdmin !== 'true') {
                 router.push('/admin/login');
             }
         }
@@ -32,7 +33,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('admin-session');
+        localStorage.removeItem('authToken');
+        sessionStorage.removeItem('isAdmin');
         router.push('/admin/login');
     };
 
