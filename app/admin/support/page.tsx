@@ -17,6 +17,8 @@ export default function AdminSupportPage() {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+    const [replyMessage, setReplyMessage] = useState('');
+    const [sendingReply, setSendingReply] = useState(false);
 
     useEffect(() => {
         fetchMessages();
@@ -32,6 +34,37 @@ export default function AdminSupportPage() {
             setMessages([]);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSendReply = async () => {
+        if (!selectedMessage || !replyMessage.trim()) return;
+
+        setSendingReply(true);
+        try {
+            const response = await fetch(`/api/contact/${selectedMessage.id}/reply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: replyMessage }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Reply sent successfully!');
+                setReplyMessage('');
+                // Refresh messages to show updated status
+                fetchMessages();
+                // Optionally update currently selected message status in local state
+                setSelectedMessage(prev => prev ? { ...prev, status: 'REPLIED' } : null);
+            } else {
+                alert(`Error: ${data.error || 'Failed to send reply'}`);
+            }
+        } catch (error) {
+            console.error('Error sending reply:', error);
+            alert('Failed to send reply. Please try again.');
+        } finally {
+            setSendingReply(false);
         }
     };
 
@@ -251,12 +284,28 @@ export default function AdminSupportPage() {
                                     </div>
 
                                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <a
-                                            href={`mailto:${selectedMessage.email}?subject=Re: Your message to HECuPPS`}
-                                            className="block w-full text-center px-4 py-2 bg-brand-gold text-white rounded-lg hover:bg-opacity-90 transition-all"
-                                        >
-                                            Reply via Email
-                                        </a>
+                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Reply to Customer</h3>
+                                        <div className="space-y-3">
+                                            <textarea
+                                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-brand-gold focus:ring-brand-gold sm:text-sm"
+                                                rows={4}
+                                                placeholder="Type your reply here..."
+                                                value={replyMessage}
+                                                onChange={(e) => setReplyMessage(e.target.value)}
+                                            />
+                                            <div className="flex justify-end">
+                                                <button
+                                                    onClick={handleSendReply}
+                                                    disabled={sendingReply || !replyMessage.trim()}
+                                                    className={`px-4 py-2 rounded-lg text-white font-medium transition-all ${sendingReply || !replyMessage.trim()
+                                                        ? 'bg-gray-400 cursor-not-allowed'
+                                                        : 'bg-brand-gold hover:bg-opacity-90'
+                                                        }`}
+                                                >
+                                                    {sendingReply ? 'Sending...' : 'Send Reply'}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

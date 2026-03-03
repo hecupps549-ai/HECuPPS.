@@ -25,7 +25,7 @@ const HomePage = () => {
                     <h1 className="text-5xl md:text-7xl font-playfair font-bold leading-tight">Curated Luxury, Wrapped with Love</h1>
                     <p className="mt-4 text-lg md:text-xl max-w-2xl font-poppins">Discover our exquisite collection of handcrafted gift hampers, designed to make every occasion memorable.</p>
                     <Link to="/products">
-                      <Button className="mt-8 text-xl">Explore Hampers</Button>
+                        <Button className="mt-8 text-xl">Explore Hampers</Button>
                     </Link>
                 </div>
             </section>
@@ -48,7 +48,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
-            
+
             {/* Testimonials */}
             <section className="bg-brand-dark text-brand-cream py-20">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,8 +65,8 @@ const HomePage = () => {
                 </div>
             </section>
 
-             {/* Newsletter Section */}
-             <section className="py-20 bg-brand-cream dark:bg-brand-dark">
+            {/* Newsletter Section */}
+            <section className="py-20 bg-brand-cream dark:bg-brand-dark">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl">
                     <h2 className="text-4xl font-playfair font-bold text-brand-dark dark:text-brand-cream">Stay in Touch</h2>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Join our newsletter to receive exclusive offers, new collection announcements, and gifting inspiration straight to your inbox.</p>
@@ -85,9 +85,9 @@ const AboutPage = () => {
         <div className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <h1 className="text-5xl font-playfair font-bold text-center mb-12 text-brand-dark dark:text-brand-cream">Our Story</h1>
-                
+
                 <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-                    <img src="https://picsum.photos/seed/ourstory/800/600" alt="Our Story" className="rounded-lg shadow-xl"/>
+                    <img src="https://picsum.photos/seed/ourstory/800/600" alt="Our Story" className="rounded-lg shadow-xl" />
                     <div>
                         <h2 className="text-3xl font-playfair text-brand-gold mb-4">From a Passion Project to a Premium Brand</h2>
                         <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
@@ -147,7 +147,7 @@ const ProductsPage = () => {
                                 <option>Corporate</option>
                             </Select>
                             <Input label="Price Range" type="range" />
-                             <Button className="w-full mt-4 text-base py-2">Apply Filters</Button>
+                            <Button className="w-full mt-4 text-base py-2">Apply Filters</Button>
                         </div>
                     </aside>
 
@@ -201,7 +201,7 @@ const ProductDetailPage = () => {
             setMainImage(product.images[0]);
         }
     }, [product]);
-    
+
     const handleCustomizationChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setCustomization(prev => ({ ...prev, [name]: value }));
@@ -209,7 +209,7 @@ const ProductDetailPage = () => {
 
     const handleAddToCart = () => {
         if (!product || !arePaymentsEnabled) return;
-        
+
         const cartItem: CartItem = {
             ...product,
             quantity,
@@ -226,7 +226,7 @@ const ProductDetailPage = () => {
 
     const handleBuyNow = () => {
         if (!product || !arePaymentsEnabled) return;
-        
+
         const cartItem: CartItem = {
             ...product,
             quantity,
@@ -235,7 +235,7 @@ const ProductDetailPage = () => {
         addToCart(cartItem);
         navigate('/checkout');
     };
-    
+
     if (!product) {
         return (
             <div className="py-16">
@@ -250,7 +250,7 @@ const ProductDetailPage = () => {
 
     return (
         <div className="py-16">
-             {showToast && (
+            {showToast && (
                 <div className="fixed top-24 right-4 z-50 bg-brand-dark text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
                     ✅ Item added to your cart!
                 </div>
@@ -286,9 +286,9 @@ const ProductDetailPage = () => {
                         <p className="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400">{product.category}</p>
                         <h1 className="text-4xl lg:text-5xl font-playfair font-bold my-2 text-brand-dark dark:text-brand-cream">{product.name}</h1>
                         <p className="text-3xl font-semibold text-brand-gold mb-4">{formatCurrency(product.price)}</p>
-                         {!arePaymentsEnabled && <p className="text-brand-coral mb-4">❤️ Online payments are currently unavailable. Please order via our Instagram page.</p>}
+                        {!arePaymentsEnabled && <p className="text-brand-coral mb-4">❤️ Online payments are currently unavailable. Please order via our Instagram page.</p>}
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{product.description}</p>
-                        
+
                         {/* Customization */}
                         <div className="space-y-4 mb-6">
                             <h3 className="text-xl font-semibold border-b pb-2 dark:border-gray-600">Personalize Your Hamper</h3>
@@ -309,8 +309,8 @@ const ProductDetailPage = () => {
                         </div>
 
                         {/* Quantity & Actions */}
-                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                             <div className="flex items-center border rounded-lg dark:border-gray-600 p-1">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                            <div className="flex items-center border rounded-lg dark:border-gray-600 p-1">
                                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 py-2 text-xl font-bold rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">-</button>
                                 <span className="px-5 text-lg font-semibold w-16 text-center">{quantity}</span>
                                 <button onClick={() => setQuantity(q => Math.min(product.stock, q + 1))} className="px-4 py-2 text-xl font-bold rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">+</button>
@@ -323,14 +323,14 @@ const ProductDetailPage = () => {
                             ) : (
                                 <div className="flex-grow">
                                     <a href="https://www.instagram.com/hecupps_6" target="_blank" rel="noopener noreferrer"
-                                    className="block w-full text-center px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-brand-gold text-white hover:bg-opacity-90 focus:ring-brand-gold text-base py-2.5"
+                                        className="block w-full text-center px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-brand-gold text-white hover:bg-opacity-90 focus:ring-brand-gold text-base py-2.5"
                                     >
                                         Order via Instagram
                                     </a>
                                 </div>
                             )}
                         </div>
-                         {quantity >= product.stock && <p className="text-red-500 text-sm mt-2">Maximum stock reached.</p>}
+                        {quantity >= product.stock && <p className="text-red-500 text-sm mt-2">Maximum stock reached.</p>}
                     </div>
                 </div>
             </div>
@@ -341,7 +341,7 @@ const ProductDetailPage = () => {
 const CartPage = () => {
     const { cart, formatCurrency, updateCartQuantity, removeFromCart, settings, arePaymentsEnabled } = useAppContext();
     const [toastMessage, setToastMessage] = useState('');
-    
+
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const tax = subtotal * (settings.taxRate / 100);
     const total = subtotal + tax;
@@ -351,7 +351,7 @@ const CartPage = () => {
         setToastMessage(`🗑️ "${productName}" removed from your cart.`);
         setTimeout(() => setToastMessage(''), 3000);
     };
-    
+
     if (!arePaymentsEnabled) {
         return (
             <div className="py-16 bg-gray-50 dark:bg-gray-900 min-h-[80vh] flex items-center justify-center">
@@ -391,46 +391,46 @@ const CartPage = () => {
                         {/* Cart Items */}
                         <div className="flex-grow lg:w-2/3">
                             <div className="space-y-4">
-                            {cart.map(item => (
-                                <Card key={item.id} className="p-4 flex flex-col sm:flex-row items-center gap-4 transition-shadow duration-300 hover:shadow-xl">
-                                    <img src={item.images[0] || 'https://picsum.photos/128'} alt={item.name} className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md flex-shrink-0"/>
-                                    <div className="flex-grow text-center sm:text-left">
-                                        <h3 className="text-xl font-semibold font-playfair">{item.name}</h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">{item.category}</p>
-                                        <p className="text-lg font-bold text-brand-gold mt-1">{formatCurrency(item.price)}</p>
-                                    </div>
-                                    <div className="flex-shrink-0 flex flex-col sm:flex-row items-center gap-4">
-                                        <div className="flex flex-col items-center">
-                                            <div className="flex items-center border rounded-lg dark:border-gray-600 bg-white dark:bg-gray-800">
-                                                <button 
-                                                    onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))} 
-                                                    className="p-2 text-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition w-10 h-10 flex items-center justify-center rounded-l-md"
-                                                    aria-label={`Decrease quantity of ${item.name}`}
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="px-4 text-lg font-semibold w-12 text-center" aria-live="polite">{item.quantity}</span>
-                                                <button 
-                                                    onClick={() => updateCartQuantity(item.id, Math.min(item.stock, item.quantity + 1))} 
-                                                    className="p-2 text-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition w-10 h-10 flex items-center justify-center rounded-r-md"
-                                                    aria-label={`Increase quantity of ${item.name}`}
-                                                    disabled={item.quantity >= item.stock}
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                            {item.quantity >= item.stock && <p className="text-red-500 text-xs mt-1">Max stock reached</p>}
+                                {cart.map(item => (
+                                    <Card key={item.id} className="p-4 flex flex-col sm:flex-row items-center gap-4 transition-shadow duration-300 hover:shadow-xl">
+                                        <img src={item.images[0] || 'https://picsum.photos/128'} alt={item.name} className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md flex-shrink-0" />
+                                        <div className="flex-grow text-center sm:text-left">
+                                            <h3 className="text-xl font-semibold font-playfair">{item.name}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.category}</p>
+                                            <p className="text-lg font-bold text-brand-gold mt-1">{formatCurrency(item.price)}</p>
                                         </div>
-                                        <button 
-                                            onClick={() => handleRemoveItem(item.id, item.name)} 
-                                            className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition"
-                                            aria-label={`Remove ${item.name} from cart`}
-                                        >
-                                            <TrashIcon className="w-6 h-6" />
-                                        </button>
-                                    </div>
-                                </Card>
-                            ))}
+                                        <div className="flex-shrink-0 flex flex-col sm:flex-row items-center gap-4">
+                                            <div className="flex flex-col items-center">
+                                                <div className="flex items-center border rounded-lg dark:border-gray-600 bg-white dark:bg-gray-800">
+                                                    <button
+                                                        onClick={() => updateCartQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                                        className="p-2 text-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition w-10 h-10 flex items-center justify-center rounded-l-md"
+                                                        aria-label={`Decrease quantity of ${item.name}`}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className="px-4 text-lg font-semibold w-12 text-center" aria-live="polite">{item.quantity}</span>
+                                                    <button
+                                                        onClick={() => updateCartQuantity(item.id, Math.min(item.stock, item.quantity + 1))}
+                                                        className="p-2 text-2xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition w-10 h-10 flex items-center justify-center rounded-r-md"
+                                                        aria-label={`Increase quantity of ${item.name}`}
+                                                        disabled={item.quantity >= item.stock}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                                {item.quantity >= item.stock && <p className="text-red-500 text-xs mt-1">Max stock reached</p>}
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveItem(item.id, item.name)}
+                                                className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition"
+                                                aria-label={`Remove ${item.name} from cart`}
+                                            >
+                                                <TrashIcon className="w-6 h-6" />
+                                            </button>
+                                        </div>
+                                    </Card>
+                                ))}
                             </div>
                         </div>
                         {/* Summary */}
@@ -458,13 +458,13 @@ const CartPage = () => {
                                             <Button variant="secondary" className="text-base py-2 px-4 whitespace-nowrap">Apply</Button>
                                         </div>
                                     </div>
-                                     {arePaymentsEnabled ? (
+                                    {arePaymentsEnabled ? (
                                         <Link to="/checkout">
                                             <Button className="w-full mt-6">Proceed to Checkout</Button>
                                         </Link>
-                                     ) : (
+                                    ) : (
                                         <Button className="w-full mt-6" disabled>Checkout Unavailable</Button>
-                                     )}
+                                    )}
                                 </Card>
                             </div>
                         </div>
@@ -499,7 +499,7 @@ const CheckoutPage = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setShippingDetails(prev => ({...prev, [name]: value}));
+        setShippingDetails(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -515,7 +515,7 @@ const CheckoutPage = () => {
             navigate('/order-failed');
         }
     };
-    
+
     if (cart.length === 0 && !isLoading) {
         return <Navigate to="/products" />;
     }
@@ -589,7 +589,7 @@ const OrderSuccessPage = () => {
             </div>
         );
     }
-    
+
     return (
         <div className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
@@ -597,7 +597,7 @@ const OrderSuccessPage = () => {
                     <CheckCircleIcon className="h-20 w-20 text-green-500 mx-auto mb-4" />
                     <h1 className="text-4xl font-playfair font-bold text-brand-dark dark:text-brand-cream">Payment Successful!</h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Thank you for your purchase. Your order has been placed.</p>
-                    
+
                     <div className="text-left bg-gray-50 dark:bg-gray-800 p-6 rounded-lg mt-8 space-y-3">
                         <h2 className="text-xl font-semibold mb-3">Order Summary</h2>
                         <p><strong>Order ID:</strong> {order.id}</p>
@@ -621,14 +621,14 @@ const OrderSuccessPage = () => {
 
 const OrderFailedPage = () => {
     return (
-         <div className="py-16">
+        <div className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
                 <Card className="p-8 text-center">
                     <XCircleIcon className="h-20 w-20 text-red-500 mx-auto mb-4" />
                     <h1 className="text-4xl font-playfair font-bold text-brand-dark dark:text-brand-cream">Payment Failed</h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Unfortunately, we were unable to process your payment.</p>
                     <p className="mt-2 text-gray-500">Please check your payment details and try again. If the problem persists, please contact our support team.</p>
-                    
+
                     <div className="mt-8 flex justify-center gap-4">
                         <Link to="/checkout"><Button>Try Again</Button></Link>
                         <Link to="/contact"><Button variant="secondary">Contact Support</Button></Link>
@@ -679,15 +679,15 @@ const ContactPage = () => {
                     <h1 className="text-5xl font-playfair font-bold text-brand-dark dark:text-brand-cream">We’re Here to Help</h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Have questions about your order or a product? Send us a message below and we’ll get back to you soon.</p>
                 </div>
-                
+
                 <div className="max-w-5xl mx-auto mt-12 grid lg:grid-cols-3 gap-16 items-start">
                     {/* Contact Info Sidebar */}
                     <div className="lg:col-span-1">
                         <h3 className="text-2xl font-playfair font-semibold mb-4">Contact Information</h3>
                         <div className="space-y-2 text-gray-700 dark:text-gray-400">
-                            <p><strong>Email:</strong><br/> hecupps549@gmail.com</p>
-                            <p><strong>Phone:</strong><br/> +91 123 456 7890</p>
-                            <p><strong>Address:</strong><br/> 123 Luxury Lane, New Delhi, India</p>
+                            <p><strong>Email:</strong><br /> hecupps549@gmail.com</p>
+                            <p><strong>Phone:</strong><br /> +91 123 456 7890</p>
+                            <p><strong>Address:</strong><br /> 123 Luxury Lane, New Delhi, India</p>
                         </div>
                         <h3 className="text-2xl font-playfair font-semibold mt-8 mb-4">Business Hours</h3>
                         <div className="space-y-1 text-gray-700 dark:text-gray-400">
@@ -700,7 +700,7 @@ const ContactPage = () => {
                     {/* Form */}
                     <div className="lg:col-span-2">
                         <Card className="p-8">
-                             {isSubmitted ? (
+                            {isSubmitted ? (
                                 <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md text-left" role="alert">
                                     <p className="font-bold">✅ Thank you! Your message has been sent.</p>
                                     <p>Our support team will contact you shortly.</p>
@@ -745,7 +745,26 @@ const FaqPage = () => {
                 <h1 className="text-5xl font-playfair font-bold text-center mb-12 text-brand-dark dark:text-brand-cream">Frequently Asked Questions</h1>
                 <div className="space-y-4">
                     {FAQ_ITEMS.map((item, index) => (
-                        <div key={index} className="border-b dark:border-// Add export for UserPages component matching the structure of AdminPages
+                        <div key={index} className="border-b dark:border-gray-600 pb-4">
+                            <button
+                                onClick={() => toggleFaq(index)}
+                                className="w-full flex justify-between items-center text-left font-semibold text-lg py-2 hover:text-brand-gold transition"
+                            >
+                                <span>{item.question}</span>
+                                <ChevronDownIcon className={`w-6 h-6 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
+                            </button>
+                            {openFaq === index && (
+                                <p className="mt-2 text-gray-600 dark:text-gray-400">{item.answer}</p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Export UserPages component
 export const UserPages = () => {
     return (
         <UserLayout>
