@@ -48,7 +48,7 @@ export default function ProductsPage() {
     };
 
     // Get unique categories
-    const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+    const categories = ['all', ...Array.from(new Set(products.map(p => p.category).filter((c): c is string => Boolean(c))))];
 
     // Filter products by category
     const filteredProducts = selectedCategory === 'all'
@@ -81,8 +81,8 @@ export default function ProductsPage() {
                                 key={category}
                                 onClick={() => setSelectedCategory(category)}
                                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${selectedCategory === category
-                                        ? 'bg-brand-gold text-white shadow-lg scale-105'
-                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-gold/10 dark:hover:bg-gray-700'
+                                    ? 'bg-brand-gold text-white shadow-lg scale-105'
+                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-gold/10 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 {category === 'all' ? 'All Products' : category}

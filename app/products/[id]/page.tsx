@@ -37,7 +37,7 @@ interface PaymentSettings {
 export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const productId = params.id as string;
+    const productId = (params?.id ?? '') as string;
 
     // Use unified cart context
     const { addToCart: addToCartContext } = useAppContext();
