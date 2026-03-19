@@ -75,11 +75,7 @@ export default function AdminLoginPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-6 pt-5 border-t border-brand-border text-center">
-                        <p className="text-xs text-gray-400 mb-1">Default credentials</p>
-                        <p className="text-xs font-mono text-gray-600">HECUPPS.main.admin</p>
-                        <p className="text-xs font-mono text-gray-600">HECCUPPs1786.admin.admin</p>
-                    </div>
+
                 </div>
             </div>
         </div>
