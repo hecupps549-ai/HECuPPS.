@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MenuIcon, MoonIcon, SunIcon, CloseIcon, CartIcon } from './Icons';
+import { MenuIcon, CloseIcon, CartIcon } from './Icons';
+import { useAppContext } from '@/context/AppContext';
 
 interface NavbarProps {
     siteName?: string;
@@ -11,14 +12,10 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const pathname = usePathname();
+    const { cart, user, logoutUser } = useAppContext();
 
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        document.documentElement.classList.toggle('dark');
-    };
+    const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     const navLinks = [
         { name: 'Home', path: '/' },
@@ -29,153 +26,217 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
 
     const isActive = (path: string) => pathname === path;
 
+    const announcementText = '🎁 Free delivery on orders over ₹999  ✨ Handcrafted with love  🎀 Customisation available  🎁 Free delivery on orders over ₹999  ✨ Handcrafted with love  🎀 Customisation available  ';
+
     return (
-        <header className="sticky top-0 z-40 bg-brand-cream/80 dark:bg-brand-dark/80 backdrop-blur-lg shadow-sm">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                    <Link href="/" className="text-3xl font-playfair font-bold text-brand-gold">
-                        {siteName}
-                    </Link>
+        <>
+            {/* Announcement Marquee Bar */}
+            <div className="bg-brand-accent text-white overflow-hidden">
+                <div className="marquee-container py-2.5 text-sm font-medium tracking-wide">
+                    <div className="marquee-track">
+                        <span className="px-4">{announcementText}</span>
+                        <span className="px-4">{announcementText}</span>
+                    </div>
+                </div>
+            </div>
 
-                    <nav className="hidden lg:flex items-center space-x-8">
-                        {navLinks.map(link => (
-                            <Link
-                                key={link.name}
-                                href={link.path}
-                                className={`text-lg font-medium transition-colors duration-200 ${isActive(link.path)
-                                        ? 'text-brand-gold'
-                                        : 'text-brand-dark hover:text-brand-gold dark:text-brand-cream dark:hover:text-brand-gold'
-                                    }`}
+            {/* Main Header */}
+            <header className="sticky top-0 z-40 bg-white border-b border-brand-border">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-3 items-center h-16 md:h-20">
+
+                        {/* Left Navigation */}
+                        <nav className="hidden lg:flex items-center gap-7">
+                            {navLinks.slice(0, 2).map(link => (
+                                <Link
+                                    key={link.name}
+                                    href={link.path}
+                                    className={`text-sm font-medium uppercase tracking-wider transition-colors duration-150 ${isActive(link.path)
+                                        ? 'text-brand-black border-b-2 border-brand-black pb-0.5'
+                                        : 'text-gray-500 hover:text-brand-black'}`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        {/* Mobile: Hamburger */}
+                        <div className="lg:hidden flex items-center">
+                            <button
+                                onClick={() => setIsMenuOpen(true)}
+                                className="p-2 text-brand-black"
+                                aria-label="Open menu"
                             >
-                                {link.name}
-                            </Link>
-                        ))}
-                    </nav>
+                                <MenuIcon className="w-6 h-6" />
+                            </button>
+                        </div>
 
-                    <div className="flex items-center space-x-4">
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-full text-brand-dark dark:text-brand-cream hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-                        >
-                            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-                        </button>
-
-                        <Link
-                            href="/cart"
-                            className="relative p-2 rounded-full text-brand-dark dark:text-brand-cream hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-                        >
-                            <CartIcon />
-                            {/* Cart count badge - will be dynamic later */}
-                        </Link>
-
-                        <div className="hidden lg:flex items-center space-x-4">
-                            <Link
-                                href="/login"
-                                className="font-semibold hover:text-brand-gold transition-colors dark:text-brand-cream dark:hover:text-brand-gold"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/signup"
-                                className="bg-brand-gold text-white px-4 py-2 rounded-md font-semibold hover:bg-opacity-90 transition-all"
-                            >
-                                Signup
+                        {/* Center: Logo */}
+                        <div className="flex justify-center">
+                            <Link href="/" className="text-2xl md:text-3xl font-playfair font-bold text-brand-black tracking-tight">
+                                {siteName}
                             </Link>
                         </div>
 
-                        <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(true)}>
-                            <MenuIcon className="text-brand-dark dark:text-brand-cream" />
-                        </button>
-                    </div>
-                </div>
-            </div>
+                        {/* Right: Links + Cart */}
+                        <div className="flex items-center justify-end gap-5">
+                            <nav className="hidden lg:flex items-center gap-7">
+                                {navLinks.slice(2).map(link => (
+                                    <Link
+                                        key={link.name}
+                                        href={link.path}
+                                        className={`text-sm font-medium uppercase tracking-wider transition-colors duration-150 ${isActive(link.path)
+                                            ? 'text-brand-black border-b-2 border-brand-black pb-0.5'
+                                            : 'text-gray-500 hover:text-brand-black'}`}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                ))}
+                            </nav>
 
-            {/* Mobile Menu */}
-            <div className={`fixed inset-0 z-50 bg-brand-cream dark:bg-brand-dark transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden`}>
-                <div className="flex justify-between items-center p-4 border-b border-brand-gold/20">
-                    <span className="text-2xl font-playfair font-bold text-brand-gold">{siteName}</span>
-                    <button onClick={() => setIsMenuOpen(false)}>
-                        <CloseIcon className="h-8 w-8 text-brand-dark dark:text-brand-cream" />
-                    </button>
-                </div>
-                <nav className="flex flex-col items-center mt-8 space-y-6">
-                    {navLinks.map(link => (
-                        <Link
-                            key={link.name}
-                            href={link.path}
-                            onClick={() => setIsMenuOpen(false)}
-                            className={`text-2xl font-medium ${isActive(link.path)
-                                    ? 'text-brand-gold'
-                                    : 'text-brand-dark dark:text-brand-cream'
-                                }`}
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                    <div className="pt-6 border-t border-brand-gold/20 w-full flex flex-col items-center space-y-6">
-                        <Link
-                            href="/login"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-2xl font-medium text-brand-dark dark:text-brand-cream"
-                        >
-                            Login
-                        </Link>
-                        <Link
-                            href="/signup"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="bg-brand-gold text-white px-6 py-3 rounded-md font-semibold text-lg"
-                        >
-                            Sign Up
-                        </Link>
+                            {/* Auth */}
+                            <div className="hidden lg:flex items-center gap-4">
+                                {!user ? (
+                                    <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-brand-black transition-colors uppercase tracking-wider">
+                                        Log In
+                                    </Link>
+                                ) : (
+                                    <button onClick={logoutUser} className="text-sm font-medium text-gray-600 hover:text-brand-black transition-colors uppercase tracking-wider">
+                                        Log Out
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Cart */}
+                            <Link href="/cart" className="relative" aria-label="Cart">
+                                <CartIcon className="w-6 h-6 text-brand-black" />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 rounded-full text-xs font-bold bg-brand-black text-white">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </Link>
+                        </div>
                     </div>
-                </nav>
-            </div>
-        </header>
+                </div>
+
+                {/* Mobile Drawer */}
+                <div className={`fixed inset-0 z-50 lg:hidden`} style={{ pointerEvents: isMenuOpen ? 'auto' : 'none' }}>
+                    {/* Backdrop */}
+                    <div
+                        className={`absolute inset-0 bg-black transition-opacity duration-300 ${isMenuOpen ? 'opacity-40' : 'opacity-0'}`}
+                        onClick={() => setIsMenuOpen(false)}
+                    />
+                    {/* Drawer Panel */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-72 bg-white transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                        <div className="flex justify-between items-center p-5 border-b border-brand-border">
+                            <span className="text-xl font-playfair font-bold text-brand-black">{siteName}</span>
+                            <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
+                                <CloseIcon className="h-6 w-6 text-brand-black" />
+                            </button>
+                        </div>
+                        <nav className="flex flex-col py-6">
+                            {navLinks.map(link => (
+                                <Link
+                                    key={link.name}
+                                    href={link.path}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className={`px-6 py-3.5 text-base font-medium uppercase tracking-wider border-b border-brand-border ${isActive(link.path) ? 'text-brand-black font-semibold bg-brand-light' : 'text-gray-600 hover:bg-brand-light'}`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                            <div className="px-6 py-6 space-y-4">
+                                {!user ? (
+                                    <>
+                                        <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block w-full text-center py-3 border border-brand-black text-brand-black font-semibold uppercase tracking-wider text-sm hover:bg-brand-black hover:text-white transition-colors">
+                                            Log In
+                                        </Link>
+                                        <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="block w-full text-center py-3 bg-brand-black text-white font-semibold uppercase tracking-wider text-sm hover:bg-gray-800 transition-colors">
+                                            Sign Up
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <button onClick={() => { logoutUser?.(); setIsMenuOpen(false); }} className="block w-full text-center py-3 border border-brand-black text-brand-black font-semibold uppercase tracking-wider text-sm">
+                                        Log Out
+                                    </button>
+                                )}
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+        </>
     );
 };
 
 export const Footer: React.FC<{ siteName?: string }> = ({ siteName = 'HECuPPS' }) => {
     return (
-        <footer className="bg-brand-dark text-brand-cream">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div>
-                        <h3 className="text-2xl font-playfair font-bold text-brand-gold">{siteName}</h3>
-                        <p className="mt-2 text-gray-300">Curated Luxury, Wrapped with Love.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-lg text-white">Quick Links</h4>
-                        <ul className="mt-4 space-y-2">
-                            <li><Link href="/about" className="hover:text-brand-gold transition-colors">About Us</Link></li>
-                            <li><Link href="/products" className="hover:text-brand-gold transition-colors">Hampers</Link></li>
-                            <li><Link href="/contact" className="hover:text-brand-gold transition-colors">Contact Us</Link></li>
-                            <li><Link href="/faq" className="hover:text-brand-gold transition-colors">FAQ</Link></li>
+        <footer className="bg-brand-light border-t border-brand-border">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                {/* 4-column grid with dividers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 lg:divide-x divide-brand-border py-14">
+                    {/* Shop */}
+                    <div className="pb-8 sm:pb-0 lg:pr-10">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Shop</h3>
+                        <ul className="space-y-3">
+                            <li><Link href="/products" className="text-sm text-gray-600 hover:text-brand-black transition-colors">All Hampers</Link></li>
+                            <li><Link href="/products?cat=Birthday" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Birthday Hampers</Link></li>
+                            <li><Link href="/products?cat=Festive" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Festive Hampers</Link></li>
+                            <li><Link href="/products?cat=Corporate" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Corporate Hampers</Link></li>
+                            <li><Link href="/products?cat=Wedding" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Wedding Hampers</Link></li>
                         </ul>
                     </div>
-                    <div>
-                        <h4 className="font-semibold text-lg text-white">Legal</h4>
-                        <ul className="mt-4 space-y-2">
-                            <li><Link href="/privacy" className="hover:text-brand-gold transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="/terms" className="hover:text-brand-gold transition-colors">Terms of Service</Link></li>
+
+                    {/* Delivery & Returns */}
+                    <div className="py-8 sm:py-0 sm:pl-8 lg:pl-10 lg:pr-10">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Delivery & Returns</h3>
+                        <ul className="space-y-3">
+                            <li className="text-sm text-gray-600">Free delivery on orders over ₹999</li>
+                            <li className="text-sm text-gray-600">Pan-India shipping available</li>
+                            <li className="text-sm text-gray-600">International orders on request</li>
+                            <li><Link href="/faq" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Shipping FAQ</Link></li>
                         </ul>
                     </div>
-                    <div>
-                        <h4 className="font-semibold text-lg text-white">Newsletter</h4>
-                        <p className="mt-4 text-gray-300">Sign up for exclusive offers and updates.</p>
-                        <div className="mt-4 flex">
-                            <input
-                                type="email"
-                                placeholder="Your email"
-                                className="w-full px-4 py-2 rounded-l-md bg-gray-700 text-white border-none focus:ring-2 focus:ring-brand-gold"
-                            />
-                            <button className="bg-brand-gold text-white px-4 py-2 rounded-r-md hover:bg-opacity-90 transition-colors">
-                                Subscribe
-                            </button>
-                        </div>
+
+                    {/* Store Policy */}
+                    <div className="py-8 sm:py-0 sm:pl-0 lg:pl-10 lg:pr-10">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Store Policy</h3>
+                        <ul className="space-y-3">
+                            <li><Link href="/faq" className="text-sm text-gray-600 hover:text-brand-black transition-colors">FAQ</Link></li>
+                            <li><a href="#" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Terms & Conditions</a></li>
+                            <li><a href="#" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Refund Policy</a></li>
+                        </ul>
+                    </div>
+
+                    {/* Contact Us */}
+                    <div className="pt-8 sm:pt-0 lg:pl-10">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Contact Us</h3>
+                        <ul className="space-y-3">
+                            <li><Link href="/contact" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Send us a message</Link></li>
+                            <li>
+                                <a
+                                    href="https://www.instagram.com/hecupps_6"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-gray-600 hover:text-brand-black transition-colors"
+                                >
+                                    Instagram @hecupps_6
+                                </a>
+                            </li>
+                            <li>
+                                <a href="mailto:info@hecupps.com" className="text-sm text-gray-600 hover:text-brand-black transition-colors">
+                                    info@hecupps.com
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                <div className="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">
-                    <p>© 2024 HECuPPS. All rights reserved.</p>
+
+                {/* Copyright */}
+                <div className="border-t border-brand-border py-6 text-center">
+                    <p className="text-xs text-gray-500">© {new Date().getFullYear()} {siteName}. All rights reserved. Curated luxury, wrapped with love.</p>
                 </div>
             </div>
         </footer>

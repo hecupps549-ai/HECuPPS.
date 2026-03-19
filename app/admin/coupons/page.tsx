@@ -103,98 +103,92 @@ export default function AdminCouponsPage() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-end mb-8 pb-4 border-b border-brand-border">
                 <div>
-                    <h1 className="text-3xl font-playfair font-bold text-gray-900 dark:text-white mb-2">
+                    <h1 className="text-2xl font-outfit font-bold text-brand-black uppercase tracking-tight">
                         Coupons
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 mt-1">
                         Manage discount coupons and promotional codes ({coupons.length} total)
                     </p>
                 </div>
                 <Link href="/admin/coupons/new">
-                    <Button>+ Add Coupon</Button>
+                    <Button>+ ADD COUPON</Button>
                 </Link>
             </div>
 
             {loading ? (
-                <Card className="p-12">
-                    <div className="text-center text-gray-600 dark:text-gray-400">
-                        Loading coupons...
-                    </div>
-                </Card>
+                <div className="p-12 text-center text-sm text-gray-400 uppercase tracking-widest border border-brand-border bg-white">
+                    Loading coupons...
+                </div>
             ) : coupons.length === 0 ? (
-                <Card className="p-12">
-                    <div className="text-center">
-                        <div className="mb-6">
-                            <svg className="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                            No coupons yet
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">
-                            Get started by creating your first discount coupon
-                        </p>
-                        <Link href="/admin/coupons/new">
-                            <Button>Create Your First Coupon</Button>
-                        </Link>
+                <div className="p-16 text-center border border-brand-border bg-white">
+                    <div className="mb-6">
+                        <span className="text-5xl text-gray-300">🎫</span>
                     </div>
-                </Card>
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-brand-black mb-2">
+                        No coupons yet
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Get started by creating your first discount coupon
+                    </p>
+                    <Link href="/admin/coupons/new">
+                        <Button>CREATE YOUR FIRST COUPON</Button>
+                    </Link>
+                </div>
             ) : (
-                <Card className="overflow-hidden">
+                <div className="border border-brand-border bg-white overflow-hidden">
                     <Table headers={['Code', 'Discount', 'Min Purchase', 'Usage', 'Expiry', 'Status', 'Actions']}>
                         {coupons.map(coupon => (
-                            <tr key={coupon.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <tr key={coupon.id} className="hover:bg-brand-light transition-colors border-b border-brand-border last:border-0">
                                 <Td>
-                                    <div className="font-mono font-bold text-brand-gold">
+                                    <div className="font-mono font-bold text-brand-black tracking-widest">
                                         {coupon.code}
                                     </div>
                                     {coupon.description && (
-                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <div className="text-xs text-brand-accent mt-1">
                                             {coupon.description}
                                         </div>
                                     )}
                                 </Td>
                                 <Td>
-                                    <div className="font-semibold text-gray-900 dark:text-white">
+                                    <div className="font-semibold text-brand-black">
                                         {formatDiscount(coupon)}
                                     </div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                                        {coupon.discountType === 'percentage' ? 'Percentage' : 'Flat'}
+                                    <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">
+                                        {coupon.discountType === 'percentage' ? 'Perc.' : 'Flat'}
                                     </div>
                                 </Td>
                                 <Td>
-                                    <span className="text-gray-600 dark:text-gray-400">
+                                    <span className="text-sm text-brand-black font-medium">
                                         ₹{coupon.minPurchase.toFixed(2)}
                                     </span>
                                 </Td>
                                 <Td>
-                                    <div className="text-sm">
-                                        <span className="font-semibold text-gray-900 dark:text-white">
+                                    <div className="text-sm text-brand-black">
+                                        <span className="font-semibold">
                                             {coupon.timesUsed}
                                         </span>
                                         {coupon.usageLimit && (
-                                            <span className="text-gray-500 dark:text-gray-400">
+                                            <span className="text-gray-500">
                                                 /{coupon.usageLimit}
                                             </span>
                                         )}
                                         {!coupon.usageLimit && (
-                                            <span className="text-gray-500 dark:text-gray-400"> used</span>
+                                            <span className="text-gray-400 text-xs ml-1 uppercase">uses</span>
                                         )}
                                     </div>
                                 </Td>
                                 <Td>
                                     {coupon.expiryDate ? (
-                                        <div className={isExpired(coupon.expiryDate) ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}>
+                                        <div className={isExpired(coupon.expiryDate) ? 'text-red-500' : 'text-gray-600'}>
                                             <div className="text-sm">{formatDate(coupon.expiryDate)}</div>
                                             {isExpired(coupon.expiryDate) && (
-                                                <div className="text-xs">Expired</div>
+                                                <div className="text-xs font-bold uppercase tracking-widest mt-1">Expired</div>
                                             )}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-500 dark:text-gray-400 text-sm">No expiry</span>
+                                        <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">No Expiry</span>
                                     )}
                                 </Td>
                                 <Td>
@@ -203,15 +197,15 @@ export default function AdminCouponsPage() {
                                     </button>
                                 </Td>
                                 <Td>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-4">
                                         <Link href={`/admin/coupons/${coupon.id}/edit`}>
-                                            <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium text-sm">
+                                            <button className="text-xs font-bold uppercase tracking-widest text-brand-black hover:text-brand-accent transition-colors">
                                                 Edit
                                             </button>
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(coupon.id, coupon.code)}
-                                            className="text-red-600 hover:text-red-800 dark:text-red-400 font-medium text-sm"
+                                            className="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors"
                                         >
                                             Delete
                                         </button>
@@ -220,7 +214,7 @@ export default function AdminCouponsPage() {
                             </tr>
                         ))}
                     </Table>
-                </Card>
+                </div>
             )}
         </div>
     );

@@ -38,6 +38,8 @@
   ],
   "exclude": [
     "node_modules",
-    "vite.config.ts"
+    "vite.config.ts",
+    "frontend",
+    "legacy_pages"
   ]
 }

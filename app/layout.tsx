@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Playfair_Display, Poppins } from 'next/font/google';
+import { Playfair_Display, Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 import { Navbar, Footer } from '@/components/Navbar';
@@ -11,15 +11,21 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
 });
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
-  variable: '--font-poppins',
+  variable: '--font-inter',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-outfit',
 });
 
 export const metadata: Metadata = {
-  title: 'HECuPPS Gift Hamper',
-  description: "A luxurious, elegant, and warm eCommerce website and a secure admin dashboard for 'HECuPPS', a premium gift hamper brand.",
+  title: 'HECuPPS — Premium Gift Hampers',
+  description: "Curated luxury gift hampers handcrafted for every occasion — from birthdays to corporate gifting.",
 };
 
 export default function RootLayout({
@@ -29,7 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${playfair.variable} ${poppins.variable} font-poppins bg-brand-cream text-brand-dark`}>
+      <body className={`${playfair.variable} ${inter.variable} ${outfit.variable} font-inter bg-white text-brand-black`}>
         <AppProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />

@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import { sendTemplatedEmail } from '@/lib/email-service';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mockkey', {
     apiVersion: '2025-02-24.acacia',
 });
 

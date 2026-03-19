@@ -298,11 +298,14 @@ export default function CheckoutPage() {
 
     if (cart.length === 0) {
         return (
-            <div className="container mx-auto px-4 py-16 text-center">
-                <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
-                <Button onClick={() => router.push('/products')}>
-                    Continue Shopping
-                </Button>
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center px-4">
+                    <div className="text-6xl mb-4">🛒</div>
+                    <h1 className="text-xl font-outfit font-bold text-brand-black uppercase tracking-wide mb-4">Your cart is empty</h1>
+                    <button onClick={() => router.push('/products')} className="bg-brand-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                        Continue Shopping
+                    </button>
+                </div>
             </div>
         );
     }
@@ -312,13 +315,15 @@ export default function CheckoutPage() {
             <Script src="https://checkout.razorpay.com/v1/checkout.js" />
             <Script src="https://js.stripe.com/v3/" />
 
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+                <div className="mb-8 pb-4 border-b border-brand-border">
+                    <h1 className="text-2xl md:text-3xl font-outfit font-bold text-brand-black uppercase tracking-tight">Checkout</h1>
+                </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                     {/* Shipping Details */}
-                    <div>
-                        <h2 className="text-2xl font-semibold mb-4">Shipping Details</h2>
+                    <div className="space-y-6">
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-brand-black mb-4 pb-3 border-b border-brand-border">Shipping Details</h2>
 
                         <div className="space-y-4">
                             <Input
@@ -358,65 +363,43 @@ export default function CheckoutPage() {
 
                         {/* Payment Methods */}
                         <div className="mt-8">
-                            <h2 className="text-2xl font-semibold mb-4">Payment Method</h2>
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-brand-black mb-4 pb-3 border-b border-brand-border">Payment Method</h2>
 
                             {!hasPaymentMethod && (
-                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <p className="text-yellow-800">
+                                <div className="border border-yellow-300 bg-yellow-50 p-4">
+                                    <p className="text-yellow-800 text-sm">
                                         Online ordering is currently unavailable.
-                                        Please <a href="/contact" className="underline">contact us</a> to place an order.
+                                        Please <a href="/contact" className="underline font-semibold">contact us</a> to place an order.
                                     </p>
                                 </div>
                             )}
 
                             {paymentSettings?.razorpayEnabled && currency === 'INR' && (
-                                <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="razorpay"
-                                        checked={selectedPaymentMethod === 'razorpay'}
-                                        onChange={() => setSelectedPaymentMethod('razorpay')}
-                                    />
-                                    <span className="font-medium">Razorpay (Cards, UPI, Wallets)</span>
+                                <label className="flex items-center space-x-3 p-4 border border-brand-border cursor-pointer hover:bg-brand-light transition-colors">
+                                    <input type="radio" name="paymentMethod" value="razorpay" checked={selectedPaymentMethod === 'razorpay'} onChange={() => setSelectedPaymentMethod('razorpay')} />
+                                    <span className="text-sm font-medium text-brand-black">Razorpay (Cards, UPI, Wallets)</span>
                                 </label>
                             )}
 
                             {paymentSettings?.stripeEnabled && currency === 'CAD' && (
-                                <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 mt-2">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="stripe"
-                                        checked={selectedPaymentMethod === 'stripe'}
-                                        onChange={() => setSelectedPaymentMethod('stripe')}
-                                    />
-                                    <span className="font-medium">Credit/Debit Card (Stripe)</span>
+                                <label className="flex items-center space-x-3 p-4 border border-brand-border cursor-pointer hover:bg-brand-light transition-colors mt-2">
+                                    <input type="radio" name="paymentMethod" value="stripe" checked={selectedPaymentMethod === 'stripe'} onChange={() => setSelectedPaymentMethod('stripe')} />
+                                    <span className="text-sm font-medium text-brand-black">Credit/Debit Card (Stripe)</span>
                                 </label>
                             )}
 
                             {paymentSettings?.interacEnabled && currency === 'CAD' && (
                                 <div className="mt-2">
-                                    <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value="interac"
-                                            checked={selectedPaymentMethod === 'interac'}
-                                            onChange={() => setSelectedPaymentMethod('interac')}
-                                        />
-                                        <span className="font-medium">Interac e-Transfer</span>
+                                    <label className="flex items-center space-x-3 p-4 border border-brand-border cursor-pointer hover:bg-brand-light transition-colors">
+                                        <input type="radio" name="paymentMethod" value="interac" checked={selectedPaymentMethod === 'interac'} onChange={() => setSelectedPaymentMethod('interac')} />
+                                        <span className="text-sm font-medium text-brand-black">Interac e-Transfer</span>
                                     </label>
 
                                     {selectedPaymentMethod === 'interac' && (
-                                        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <h3 className="font-semibold mb-2">Interac e-Transfer Instructions:</h3>
-                                            <p className="text-sm mb-2">
-                                                Send payment to: <strong>{paymentSettings.interacEmail}</strong>
-                                            </p>
-                                            <p className="text-sm text-gray-700">
-                                                {paymentSettings.interacInstructions}
-                                            </p>
+                                        <div className="mt-3 p-4 border border-brand-accent bg-blue-50">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-black mb-2">Interac e-Transfer Instructions</h3>
+                                            <p className="text-sm text-gray-700 mb-1">Send payment to: <strong>{paymentSettings.interacEmail}</strong></p>
+                                            <p className="text-sm text-gray-600">{paymentSettings.interacInstructions}</p>
                                         </div>
                                     )}
                                 </div>
@@ -426,9 +409,9 @@ export default function CheckoutPage() {
 
                     {/* Order Summary */}
                     <div>
-                        <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-brand-black mb-4 pb-3 border-b border-brand-border">Order Summary</h2>
 
-                        <div className="bg-gray-50 rounded-lg p-6">
+                        <div className="bg-brand-light border border-brand-border p-6">
                             {cart.map((item) => {
                                 const itemPrice = currency === 'CAD' ? (item.priceCAD || item.price) : (item.priceINR || item.price);
                                 return (
@@ -453,13 +436,13 @@ export default function CheckoutPage() {
                         </div>
 
                         {hasPaymentMethod && (
-                            <Button
+                            <button
                                 onClick={handlePlaceOrder}
                                 disabled={loading}
-                                className="w-full mt-6"
+                                className="w-full mt-6 bg-brand-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50"
                             >
                                 {loading ? 'Processing...' : 'Place Order'}
-                            </Button>
+                            </button>
                         )}
                     </div>
                 </div>

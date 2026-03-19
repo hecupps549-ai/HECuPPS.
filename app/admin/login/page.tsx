@@ -6,55 +6,48 @@ import { Input, Button } from '@/components/UI';
 
 export default function AdminLoginPage() {
     const router = useRouter();
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-    });
+    const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
-        // TODO: Implement actual authentication with NextAuth
-        // For now, check default credentials
         if (formData.username === 'HECUPPS.main.admin' && formData.password === 'HECCUPPs1786.admin.admin') {
-            // Store authentication tokens to match AppContext
             localStorage.setItem('authToken', 'admin-temp-token');
             sessionStorage.setItem('isAdmin', 'true');
             router.push('/admin');
         } else {
             setError('Invalid username or password');
+            setLoading(false);
         }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-            <div className="w-full max-w-md">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div className="min-h-screen bg-brand-light flex items-center justify-center px-4">
+            <div className="w-full max-w-sm">
+                {/* Card */}
+                <div className="bg-white border border-brand-border p-10">
+                    {/* Header */}
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-playfair font-bold text-brand-gold mb-2">
-                            Admin Portal
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Sign in to access the dashboard
-                        </p>
+                        <div className="text-2xl font-playfair font-bold text-brand-black mb-1">HECuPPS</div>
+                        <div className="text-xs font-semibold uppercase tracking-widest text-brand-accent mb-4">Admin Portal</div>
+                        <p className="text-sm text-gray-500">Sign in to access the dashboard</p>
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-lg text-sm">
+                        <div className="mb-5 p-3 border border-red-200 bg-red-50 text-red-700 text-sm">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <Input
                             label="Username"
                             id="username"
@@ -63,9 +56,9 @@ export default function AdminLoginPage() {
                             value={formData.username}
                             onChange={handleChange}
                             required
-                            placeholder="Enter admin username"
+                            placeholder="Admin username"
+                            autoComplete="username"
                         />
-
                         <Input
                             label="Password"
                             id="password"
@@ -74,18 +67,18 @@ export default function AdminLoginPage() {
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            placeholder="Enter password"
+                            placeholder="••••••••"
+                            autoComplete="current-password"
                         />
-
-                        <Button type="submit" className="w-full" variant="secondary">
-                            Sign In to Dashboard
+                        <Button type="submit" disabled={loading} className="w-full py-4 mt-2">
+                            {loading ? 'Signing In...' : 'Sign In to Dashboard'}
                         </Button>
                     </form>
 
-                    <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-                        <p>Default credentials:</p>
-                        <p className="font-mono mt-1">Username: HECUPPS.main.admin</p>
-                        <p className="font-mono">Password: HECCUPPs1786.admin.admin</p>
+                    <div className="mt-6 pt-5 border-t border-brand-border text-center">
+                        <p className="text-xs text-gray-400 mb-1">Default credentials</p>
+                        <p className="text-xs font-mono text-gray-600">HECUPPS.main.admin</p>
+                        <p className="text-xs font-mono text-gray-600">HECCUPPs1786.admin.admin</p>
                     </div>
                 </div>
             </div>

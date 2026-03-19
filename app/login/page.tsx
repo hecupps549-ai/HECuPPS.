@@ -5,81 +5,67 @@ import Link from 'next/link';
 import { Input, Button } from '@/components/UI';
 
 export default function LoginPage() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
+    const [formData, setFormData] = useState({ email: '', password: '' });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement authentication
         console.log('Login attempt:', formData);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-12">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-playfair font-bold text-brand-gold mb-2">
-                            Welcome Back
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Sign in to your account
-                        </p>
+        <div className="min-h-screen bg-brand-light flex items-center justify-center py-12 px-4">
+            <div className="w-full max-w-md bg-white border border-brand-border p-10">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <Link href="/" className="text-2xl font-playfair font-bold text-brand-black block mb-6">
+                        HECuPPS
+                    </Link>
+                    <h1 className="text-xl font-outfit font-bold text-brand-black uppercase tracking-wider mb-1">Welcome Back</h1>
+                    <p className="text-sm text-gray-500">Sign in to your account</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <Input
+                        label="Email Address"
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="your@email.com"
+                    />
+                    <Input
+                        label="Password"
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="••••••••"
+                    />
+
+                    <div className="flex items-center justify-between text-xs">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" className="border border-brand-border" />
+                            <span className="text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" className="text-gray-500 hover:text-brand-black transition-colors">Forgot password?</a>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <Input
-                            label="Email Address"
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="your@email.com"
-                        />
+                    <Button type="submit" className="w-full py-4">Sign In</Button>
+                </form>
 
-                        <Input
-                            label="Password"
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            placeholder="••••••••"
-                        />
-
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center">
-                                <input type="checkbox" className="mr-2" />
-                                <span className="text-gray-600 dark:text-gray-400">Remember me</span>
-                            </label>
-                            <Link href="/forgot-password" className="text-brand-gold hover:underline">
-                                Forgot password?
-                            </Link>
-                        </div>
-
-                        <Button type="submit" className="w-full">
-                            Sign In
-                        </Button>
-                    </form>
-
-                    <div className="mt-6 text-center text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
-                        <Link href="/signup" className="text-brand-gold font-semibold hover:underline">
-                            Sign up
-                        </Link>
-                    </div>
+                <div className="mt-8 pt-6 border-t border-brand-border text-center text-sm text-gray-500">
+                    Don't have an account?{' '}
+                    <Link href="/signup" className="text-brand-black font-bold hover:underline">
+                        Create one
+                    </Link>
                 </div>
             </div>
         </div>

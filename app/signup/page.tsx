@@ -18,93 +18,43 @@ export default function SignupPage() {
             alert('Passwords do not match');
             return;
         }
-        // TODO: Implement registration
         console.log('Signup attempt:', formData);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-12">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-playfair font-bold text-brand-gold mb-2">
-                            Create Account
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Join HECuPPS today
-                        </p>
-                    </div>
+        <div className="min-h-screen bg-brand-light flex items-center justify-center py-12 px-4">
+            <div className="w-full max-w-md bg-white border border-brand-border p-10">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <Link href="/" className="text-2xl font-playfair font-bold text-brand-black block mb-6">
+                        HECuPPS
+                    </Link>
+                    <h1 className="text-xl font-outfit font-bold text-brand-black uppercase tracking-wider mb-1">Create Account</h1>
+                    <p className="text-sm text-gray-500">Join the HECuPPS family</p>
+                </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <Input
-                            label="Full Name"
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                            placeholder="John Doe"
-                        />
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <Input label="Full Name" id="name" name="name" type="text" value={formData.name} onChange={handleChange} required placeholder="Your Name" />
+                    <Input label="Email Address" id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="your@email.com" />
+                    <Input label="Password" id="password" name="password" type="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" />
+                    <Input label="Confirm Password" id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} required placeholder="••••••••" />
 
-                        <Input
-                            label="Email Address"
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="your@email.com"
-                        />
+                    <p className="text-xs text-gray-400">
+                        By signing up, you agree to our{' '}
+                        <a href="#" className="underline text-brand-black">Terms of Service</a> and{' '}
+                        <a href="#" className="underline text-brand-black">Privacy Policy</a>.
+                    </p>
 
-                        <Input
-                            label="Password"
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            placeholder="••••••••"
-                        />
+                    <Button type="submit" className="w-full py-4">Create Account</Button>
+                </form>
 
-                        <Input
-                            label="Confirm Password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                            placeholder="••••••••"
-                        />
-
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                            By signing up, you agree to our{' '}
-                            <Link href="/terms" className="text-brand-gold hover:underline">Terms of Service</Link>
-                            {' '}and{' '}
-                            <Link href="/privacy" className="text-brand-gold hover:underline">Privacy Policy</Link>
-                        </div>
-
-                        <Button type="submit" className="w-full">
-                            Create Account
-                        </Button>
-                    </form>
-
-                    <div className="mt-6 text-center text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Already have an account? </span>
-                        <Link href="/login" className="text-brand-gold font-semibold hover:underline">
-                            Sign in
-                        </Link>
-                    </div>
+                <div className="mt-8 pt-6 border-t border-brand-border text-center text-sm text-gray-500">
+                    Already have an account?{' '}
+                    <Link href="/login" className="text-brand-black font-bold hover:underline">Sign in</Link>
                 </div>
             </div>
         </div>

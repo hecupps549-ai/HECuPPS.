@@ -76,67 +76,73 @@ export default function AdminProductsPage() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-end mb-8 pb-4 border-b border-brand-border">
                 <div>
-                    <h1 className="text-3xl font-playfair font-bold text-gray-900 dark:text-white mb-2">
+                    <h1 className="text-2xl font-outfit font-bold text-brand-black uppercase tracking-tight">
                         Products
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 mt-1">
                         Manage your gift hampers and products ({products.length} total)
                     </p>
                 </div>
                 <Link href="/admin/products/new">
-                    <Button>+ Add Product</Button>
+                    <Button>+ ADD PRODUCT</Button>
                 </Link>
             </div>
 
             {loading ? (
-                <Card className="p-12">
-                    <div className="text-center text-gray-600 dark:text-gray-400">
-                        Loading products...
-                    </div>
-                </Card>
+                <div className="p-12 text-center text-sm text-gray-400 uppercase tracking-widest border border-brand-border bg-white">
+                    Loading products...
+                </div>
             ) : products.length === 0 ? (
-                <Card className="p-12">
-                    <div className="text-center">
-                        <div className="mb-6">
-                            <svg className="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                            No products yet
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">
-                            Get started by adding your first product
-                        </p>
-                        <Link href="/admin/products/new">
-                            <Button>Create Your First Product</Button>
-                        </Link>
+                <div className="p-16 text-center border border-brand-border bg-white">
+                    <div className="mb-6">
+                        <span className="text-5xl text-gray-300">🎁</span>
                     </div>
-                </Card>
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-brand-black mb-2">
+                        No products yet
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Get started by adding your first product
+                    </p>
+                    <Link href="/admin/products/new">
+                        <Button>CREATE YOUR FIRST PRODUCT</Button>
+                    </Link>
+                </div>
             ) : (
-                <Card className="overflow-hidden">
+                <div className="border border-brand-border bg-white overflow-hidden">
                     <Table headers={['Product', 'Category', 'Price (INR)', 'Price (CAD)', 'Stock', 'Status', 'Actions']}>
                         {products.map(product => (
-                            <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <tr key={product.id} className="hover:bg-brand-light transition-colors border-b border-brand-border last:border-0">
                                 <Td>
                                     <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white">
+                                        <div className="text-sm font-semibold text-brand-black">
                                             {product.name}
                                         </div>
                                         {product.featured && (
-                                            <span className="text-xs bg-brand-gold/20 text-brand-gold px-2 py-1 rounded">
-                                                Featured
+                                            <span className="text-[10px] font-bold tracking-widest text-brand-accent uppercase mt-1 inline-block">
+                                                FEATURED
                                             </span>
                                         )}
                                     </div>
                                 </Td>
-                                <Td>{product.category || '-'}</Td>
-                                <Td>₹{product.priceINR?.toFixed(2) || '0.00'}</Td>
-                                <Td>${product.priceCAD?.toFixed(2) || '0.00'}</Td>
                                 <Td>
-                                    <span className={product.stock < 10 ? 'text-red-600 font-semibold' : ''}>
+                                    <span className="text-sm text-gray-600">
+                                        {product.category || '-'}
+                                    </span>
+                                </Td>
+                                <Td>
+                                    <span className="text-sm font-medium text-brand-black">
+                                        ₹{product.priceINR?.toFixed(2) || '0.00'}
+                                    </span>
+                                </Td>
+                                <Td>
+                                    <span className="text-sm font-medium text-brand-black">
+                                        ${product.priceCAD?.toFixed(2) || '0.00'}
+                                    </span>
+                                </Td>
+                                <Td>
+                                    <span className={`text-sm ${product.stock < 10 ? 'text-red-500 font-bold' : 'text-gray-600'}`}>
                                         {product.stock}
                                     </span>
                                 </Td>
@@ -146,15 +152,15 @@ export default function AdminProductsPage() {
                                     </button>
                                 </Td>
                                 <Td>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-4">
                                         <Link href={`/admin/products/${product.id}/edit`}>
-                                            <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium text-sm">
+                                            <button className="text-xs font-bold uppercase tracking-widest text-brand-black hover:text-brand-accent transition-colors">
                                                 Edit
                                             </button>
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(product.id)}
-                                            className="text-red-600 hover:text-red-800 dark:text-red-400 font-medium text-sm"
+                                            className="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors"
                                         >
                                             Delete
                                         </button>
@@ -163,7 +169,7 @@ export default function AdminProductsPage() {
                             </tr>
                         ))}
                     </Table>
-                </Card>
+                </div>
             )}
         </div>
     );

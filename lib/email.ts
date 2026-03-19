@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.EMAIL_API_KEY);
-const fromEmail = process.env.FROM_EMAIL!;
+const resend = new Resend(process.env.EMAIL_API_KEY || 're_mock_key');
+const fromEmail = process.env.FROM_EMAIL || 'noreply@hecupps.com';
 
 interface EmailParams {
   to: string;
