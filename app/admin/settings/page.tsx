@@ -62,24 +62,34 @@ export default function AdminSettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
+            // Strip automatically managed Prisma fields to prevent validation errors
+            const { updatedAt: _s, ...cleanSiteSettings } = siteSettings as any;
+            const { updatedAt: _p, ...cleanPaymentSettings } = paymentSettings as any;
+
             const response = await fetch('/api/settings', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    siteSettings,
-                    paymentSettings,
+                    siteSettings: cleanSiteSettings,
+                    paymentSettings: cleanPaymentSettings,
                 }),
             });
 
             if (response.ok) {
                 alert('Settings saved successfully!');
             } else {
-                const error = await response.json();
-                alert(`Error: ${error.error}`);
+                let errorMsg = 'Unknown error';
+                try {
+                    const error = await response.json();
+                    errorMsg = error.error || JSON.stringify(error);
+                } catch (e) {
+                    errorMsg = await response.text();
+                }
+                alert(`Error: ${errorMsg}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving settings:', error);
-            alert('Failed to save settings. Please try again.');
+            alert(`Failed to save settings: ${error.message || 'Network error'}`);
         } finally {
             setSaving(false);
         }
