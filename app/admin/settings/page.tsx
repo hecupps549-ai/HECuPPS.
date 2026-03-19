@@ -79,13 +79,18 @@ export default function AdminSettingsPage() {
                 alert('Settings saved successfully!');
             } else {
                 let errorMsg = 'Unknown error';
+                const clonedResponse = response.clone();
                 try {
                     const error = await response.json();
                     errorMsg = error.error || JSON.stringify(error);
                 } catch (e) {
-                    errorMsg = await response.text();
+                    errorMsg = await clonedResponse.text();
+                    // Truncate if it's a massive HTML page
+                    if (errorMsg.length > 200) {
+                        errorMsg = errorMsg.substring(0, 200) + '...';
+                    }
                 }
-                alert(`Error: ${errorMsg}`);
+                alert(`Error: ${response.status} - ${errorMsg}`);
             }
         } catch (error: any) {
             console.error('Error saving settings:', error);
