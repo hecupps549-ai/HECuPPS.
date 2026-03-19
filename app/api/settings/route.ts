@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET settings
 export async function GET(request: NextRequest) {
+    console.log('[Settings API] GET request received');
     try {
         // Get or create site settings (there should only be one record)
         let siteSettings = await prisma.siteSettings.findFirst();
@@ -41,6 +44,7 @@ export async function GET(request: NextRequest) {
 
 // PUT update settings
 export async function PUT(request: NextRequest) {
+    console.log('[Settings API] PUT request received');
     try {
         const body = await request.json();
         const { siteSettings: siteData, paymentSettings: paymentData } = body;
@@ -79,4 +83,16 @@ export async function PUT(request: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+// OPTIONS preflight
+export async function OPTIONS() {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }
