@@ -23,7 +23,12 @@ export default function AdminUsersPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/admin/users');
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/admin/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
             setUsers(data.users || []);
         } catch (error) {
@@ -38,9 +43,13 @@ export default function AdminUsersPage() {
         const newStatus = user.status === 'Active' ? 'Blocked' : 'Active';
 
         try {
+            const token = localStorage.getItem('authToken');
             const response = await fetch(`/api/admin/users/${user.id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ status: newStatus }),
             });
 

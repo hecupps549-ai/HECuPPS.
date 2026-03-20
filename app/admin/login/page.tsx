@@ -15,12 +15,26 @@ export default function AdminLoginPage() {
         setError('');
         setLoading(true);
 
-        if (formData.username === 'HECUPPS.main.admin' && formData.password === 'HECCUPPs1786.admin.admin') {
-            localStorage.setItem('authToken', 'admin-temp-token');
-            sessionStorage.setItem('isAdmin', 'true');
-            router.push('/admin');
-        } else {
-            setError('Invalid username or password');
+        try {
+            const response = await fetch('/api/admin/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('authToken', data.token);
+                sessionStorage.setItem('isAdmin', 'true');
+                router.push('/admin');
+            } else {
+                setError(data.message || 'Invalid username or password');
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('An error occurred during login. Please try again.');
             setLoading(false);
         }
     };

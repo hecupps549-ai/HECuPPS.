@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { MenuIcon, CloseIcon, MoonIcon, SunIcon } from '@/components/Icons';
+import { useAppContext } from '@/context/AppContext';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -11,7 +12,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const { theme, toggleTheme } = useAppContext();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -25,11 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }
     }, [pathname, router]);
 
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        document.documentElement.classList.toggle('dark');
-    };
+    // Removed redundant toggleTheme as AppContext handles it
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
@@ -59,9 +56,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     return (
-        <div className="flex h-screen bg-brand-light">
+        <div className="flex h-screen bg-brand-light dark:bg-brand-black transition-colors duration-300">
             {/* Sidebar */}
-            <aside className={`fixed lg:relative z-50 lg:z-auto w-64 h-full bg-white border-r border-brand-border flex flex-col flex-shrink-0 transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+            <aside className={`fixed lg:relative z-50 lg:z-auto w-64 h-full bg-white dark:bg-brand-black border-r border-brand-border dark:border-gray-800 flex flex-col flex-shrink-0 transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
                 {/* Sidebar Header */}
                 <div className="flex items-center justify-between h-16 px-6 border-b border-brand-border bg-brand-black">
                     <Link href="/admin" className="text-xl font-playfair font-bold text-white tracking-wide">
@@ -82,8 +79,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                     href={item.path}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`flex items-center px-4 py-3 text-sm font-medium transition-colors rounded ${isActive(item.path)
-                                        ? 'bg-brand-black text-white'
-                                        : 'text-gray-600 hover:bg-brand-light hover:text-brand-black'}`}
+                                        ? 'bg-brand-black dark:bg-white text-white dark:text-brand-black'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-brand-light dark:hover:bg-gray-800 hover:text-brand-black dark:hover:text-white'}`}
                                 >
                                     <span className="mr-3 text-base">{item.icon}</span>
                                     <span>{item.name}</span>
@@ -94,7 +91,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </nav>
 
                 {/* Sidebar Footer */}
-                <div className="p-4 border-t border-brand-border">
+                <div className="p-4 border-t border-brand-border dark:border-gray-800">
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
@@ -113,13 +110,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Header */}
-                <header className="flex-shrink-0 flex items-center justify-between h-16 px-6 bg-white border-b border-brand-border">
+                <header className="flex-shrink-0 flex items-center justify-between h-16 px-6 bg-white dark:bg-brand-black border-b border-brand-border dark:border-gray-800">
                     <div className="flex items-center gap-4">
-                        <button className="lg:hidden text-gray-600" onClick={() => setIsSidebarOpen(true)}>
+                        <button className="lg:hidden text-gray-600 dark:text-gray-400" onClick={() => setIsSidebarOpen(true)}>
                             <MenuIcon className="w-6 h-6" />
                         </button>
                         {/* Page title — shows what section we're in */}
-                        <h1 className="text-sm font-bold uppercase tracking-widest text-brand-black hidden lg:block">
+                        <h1 className="text-sm font-bold uppercase tracking-widest text-brand-black dark:text-white hidden lg:block">
                             {navItems.find(i => isActive(i.path))?.name || 'Dashboard'}
                         </h1>
                     </div>
@@ -128,19 +125,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         {/* Theme toggle */}
                         <button
                             onClick={toggleTheme}
-                            className="p-2 text-gray-500 hover:text-brand-black hover:bg-brand-light rounded transition-colors"
+                            className="p-2 text-gray-500 hover:text-brand-black dark:hover:text-white hover:bg-brand-light dark:hover:bg-gray-800 rounded transition-colors"
                         >
                             {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
                         </button>
                         {/* View site */}
-                        <Link href="/" target="_blank" className="text-xs font-semibold text-gray-500 hover:text-brand-black border border-brand-border px-3 py-1.5 rounded hover:border-brand-black transition-colors uppercase tracking-wider">
+                        <Link href="/" target="_blank" className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white border border-brand-border dark:border-gray-800 px-3 py-1.5 rounded hover:border-brand-black dark:hover:border-white transition-colors uppercase tracking-wider">
                             View Site
                         </Link>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-light">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-light dark:bg-brand-black">
                     <div className="container mx-auto px-6 py-8">
                         {children}
                     </div>

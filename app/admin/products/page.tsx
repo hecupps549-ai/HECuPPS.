@@ -40,8 +40,12 @@ export default function AdminProductsPage() {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         try {
+            const token = localStorage.getItem('authToken');
             const response = await fetch(`/api/products/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {

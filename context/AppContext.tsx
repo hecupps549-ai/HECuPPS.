@@ -208,6 +208,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     fetchInitialData();
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const root = window.document.documentElement;
+      if (theme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [theme]);
+
   const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
 
   const updateSettings = async (newSettings: Partial<Settings>) => {

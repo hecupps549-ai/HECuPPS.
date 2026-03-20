@@ -49,13 +49,17 @@ export default function NewProductPage() {
         setLoading(true);
 
         try {
+            const token = localStorage.getItem('authToken');
             const images = imageUrls
                 .filter(url => url.trim())
                 .map(url => ({ url, altText: formData.name }));
 
             const response = await fetch('/api/products', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     ...formData,
                     images,
@@ -219,6 +223,7 @@ export default function NewProductPage() {
 
                                         setLoading(true);
                                         try {
+                                            const token = localStorage.getItem('authToken');
                                             const uploadedUrls: string[] = [];
                                             for (const file of Array.from(files)) {
                                                 const formData = new FormData();
@@ -227,6 +232,9 @@ export default function NewProductPage() {
 
                                                 const response = await fetch('/api/upload', {
                                                     method: 'POST',
+                                                    headers: {
+                                                        'Authorization': `Bearer ${token}`
+                                                    },
                                                     body: formData,
                                                 });
 

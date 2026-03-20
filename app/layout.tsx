@@ -35,7 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${playfair.variable} ${inter.variable} ${outfit.variable} font-inter bg-white text-brand-black`}>
+      <body className={`${playfair.variable} ${inter.variable} ${outfit.variable} font-inter bg-white text-brand-black dark:bg-brand-black dark:text-white transition-colors duration-300`}>
         <AppProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />

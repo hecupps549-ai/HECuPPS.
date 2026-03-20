@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+import { withAdminAuth } from '@/lib/rbac';
 
 // GET single product
 export async function GET(
@@ -35,9 +37,9 @@ export async function GET(
 }
 
 // PUT update product
-export async function PUT(
+async function putHandler(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    params: any
 ) {
     try {
         const body = await request.json();
@@ -53,42 +55,65 @@ export async function PUT(
             images,
         } = body;
 
-        const product = await prisma.product.update({
-            where: { id: parseInt(params.id) },
-            data: {
-                name,
-                description,
-                category,
-                priceINR: parseFloat(priceINR),
-                priceCAD: parseFloat(priceCAD),
-                price: parseFloat(priceINR),
-                stock: parseInt(stock),
-                status,
-                featured,
-            },
+        const productId = parseInt(params.params.id);
+
+        // Build update data
+        const updateData: any = {
+            name,
+            description,
+            category,
+            priceINR: parseFloat(priceINR),
+            priceCAD: parseFloat(priceCAD),
+            price: parseFloat(priceINR),
+            stock: parseInt(stock),
+            status,
+            featured,
+        };
+
+        // Handle images if provided
+        if (images && Array.isArray(images)) {
+            updateData.images = {
+                deleteMany: {}, // Delete all existing images for this product
+                create: images.map((img: any, index: number) => ({
+                    url: img.url,
+                    altText: img.altText || name,
+                    isPrimary: index === 0,
+                    order: index,
+                })),
+            };
+        }
+
+        // Update product with nested images
+        const updatedProduct = await prisma.product.update({
+            where: { id: productId },
+            data: updateData,
             include: {
                 images: true,
             },
         });
 
-        return NextResponse.json({ product });
-    } catch (error) {
+        return NextResponse.json({ product: updatedProduct });
+    } catch (error: any) {
         console.error('Error updating product:', error);
         return NextResponse.json(
-            { error: 'Failed to update product' },
+            { error: error.message || 'Failed to update product' },
             { status: 500 }
         );
     }
 }
 
+export const PUT = withAdminAuth(['SUPER_ADMIN', 'PRODUCT_MANAGER'], putHandler);
+
 // DELETE product
-export async function DELETE(
+async function deleteHandler(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    params: any
 ) {
     try {
+        const productId = parseInt(params.params.id);
+
         await prisma.product.delete({
-            where: { id: parseInt(params.id) },
+            where: { id: productId },
         });
 
         return NextResponse.json({ message: 'Product deleted successfully' });
@@ -100,3 +125,5 @@ export async function DELETE(
         );
     }
 }
+
+export const DELETE = withAdminAuth(['SUPER_ADMIN'], deleteHandler);

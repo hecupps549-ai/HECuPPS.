@@ -19,18 +19,21 @@ export const withAdminAuth = (allowedRoles: AdminRole[], handler: Handler): ((re
 
     const decoded = verifyToken(token);
     if (!decoded || decoded.role !== 'ADMIN') {
+      console.error('[Admin Auth] Invalid token or role:', { decoded });
       return new NextResponse(JSON.stringify({ message: 'Forbidden: Invalid token or role' }), { status: 403 });
     }
     
     // In a real multi-admin system, you would check `decoded.id` against the Admin table in the DB
     // to get the specific roles and check if `allowedRoles` includes any of them.
     // For this example, we'll assume any admin can do anything for simplicity.
-    const admin = await prisma.admin.findUnique({ where: { id: decoded.id }});
+    const adminId = parseInt(decoded.id);
+    const admin = await prisma.admin.findUnique({ where: { id: adminId }});
     if(!admin) {
+        console.error('[Admin Auth] Admin not found in database:', { adminId });
         return new NextResponse(JSON.stringify({ message: 'Forbidden: Admin not found' }), { status: 403 });
     }
-    // Simple check: if SUPER_ADMIN is required, user must be a master admin.
-    if(allowedRoles.includes('SUPER_ADMIN') && !admin.isMaster) {
+    // Simple check: if SUPER_ADMIN is required, user must be a SuperAdmin.
+    if(allowedRoles.includes('SUPER_ADMIN') && admin.role !== 'SuperAdmin') {
         return new NextResponse(JSON.stringify({ message: 'Forbidden: Super Admin role required' }), { status: 403 });
     }
     

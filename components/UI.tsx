@@ -12,9 +12,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({ children, className = '', variant = 'primary', ...props }) => {
   const base = "inline-flex items-center justify-center px-6 py-3 text-sm font-bold uppercase tracking-widest transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
   const variants: Record<string, string> = {
-    primary: 'bg-brand-black text-white hover:bg-gray-800',
+    primary: 'bg-brand-black text-white hover:bg-gray-800 dark:bg-white dark:text-brand-black dark:hover:bg-gray-200',
     secondary: 'bg-brand-accent text-white hover:opacity-90',
-    outline: 'bg-white text-brand-black border-2 border-brand-black hover:bg-brand-black hover:text-white',
+    outline: 'bg-white text-brand-black border-2 border-brand-black hover:bg-brand-black hover:text-white dark:bg-transparent dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-brand-black',
     danger: 'bg-red-600 text-white hover:bg-red-700',
   };
   return (
@@ -33,13 +33,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input: React.FC<InputProps> = ({ label, id, ...props }) => (
   <div className="w-full">
     {label && (
-      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black mb-1.5">
+      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black dark:text-white mb-1.5">
         {label}
       </label>
     )}
     <input
       id={id}
-      className="w-full px-4 py-3 bg-white border border-brand-border text-brand-black placeholder-gray-400 focus:outline-none focus:border-brand-black text-sm transition-colors"
+      className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-brand-border dark:border-gray-800 text-brand-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-brand-black dark:focus:border-brand-accent text-sm transition-colors"
       {...props}
     />
   </div>
@@ -54,13 +54,13 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 export const Select: React.FC<SelectProps> = ({ label, id, children, ...props }) => (
   <div className="w-full">
     {label && (
-      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black mb-1.5">
+      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black dark:text-white mb-1.5">
         {label}
       </label>
     )}
     <select
       id={id}
-      className="w-full px-4 py-3 bg-white border border-brand-border text-brand-black focus:outline-none focus:border-brand-black text-sm transition-colors appearance-none cursor-pointer"
+      className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-brand-border dark:border-gray-800 text-brand-black dark:text-white focus:outline-none focus:border-brand-black dark:focus:border-brand-accent text-sm transition-colors appearance-none cursor-pointer"
       {...props}
     >
       {children}
@@ -77,13 +77,13 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 export const Textarea: React.FC<TextareaProps> = ({ label, id, ...props }) => (
   <div className="w-full">
     {label && (
-      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black mb-1.5">
+      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-black dark:text-white mb-1.5">
         {label}
       </label>
     )}
     <textarea
       id={id}
-      className="w-full px-4 py-3 bg-white border border-brand-border text-brand-black placeholder-gray-400 focus:outline-none focus:border-brand-black text-sm transition-colors resize-none"
+      className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-brand-border dark:border-gray-800 text-brand-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-brand-black dark:focus:border-brand-accent text-sm transition-colors resize-none"
       {...props}
     />
   </div>
@@ -103,11 +103,11 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4" onClick={onClose}>
       <div
-        className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto relative"
+        className="bg-white dark:bg-gray-900 w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-brand-border dark:border-gray-800"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-6 border-b border-brand-border">
-          <h3 className="text-lg font-outfit font-bold text-brand-black uppercase tracking-wide">{title}</h3>
+        <div className="flex justify-between items-center p-6 border-b border-brand-border dark:border-gray-800">
+          <h3 className="text-lg font-outfit font-bold text-brand-black dark:text-white uppercase tracking-wide">{title}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-brand-black transition-colors">
             <CloseIcon className="h-6 w-6" />
           </button>
@@ -126,7 +126,7 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`bg-white border border-brand-border transition-shadow duration-200 hover:shadow-md ${className}`}>
+  <div className={`bg-white dark:bg-gray-900 border border-brand-border dark:border-gray-800 transition-all duration-200 hover:shadow-md ${className}`}>
     {children}
   </div>
 );
@@ -139,18 +139,18 @@ interface TableProps {
 }
 
 export const Table: React.FC<TableProps> = ({ headers, children }) => (
-  <div className="overflow-x-auto border border-brand-border bg-white">
+  <div className="overflow-x-auto border border-brand-border dark:border-gray-800 bg-white dark:bg-gray-900">
     <table className="min-w-full">
-      <thead className="bg-brand-light border-b border-brand-border">
+      <thead className="bg-brand-light dark:bg-gray-800 border-b border-brand-border dark:border-gray-700">
         <tr>
           {headers.map(header => (
-            <th key={header} scope="col" className="px-5 py-3 text-left text-xs font-bold text-brand-black uppercase tracking-widest">
+            <th key={header} scope="col" className="px-5 py-3 text-left text-xs font-bold text-brand-black dark:text-white uppercase tracking-widest">
               {header}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody className="divide-y divide-brand-border">
+      <tbody className="divide-y divide-brand-border dark:divide-gray-800">
         {children}
       </tbody>
     </table>
@@ -158,7 +158,7 @@ export const Table: React.FC<TableProps> = ({ headers, children }) => (
 );
 
 export const Td: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <td className="px-5 py-4 text-sm text-brand-black whitespace-nowrap">{children}</td>
+  <td className="px-5 py-4 text-sm text-brand-black dark:text-gray-300 whitespace-nowrap">{children}</td>
 );
 
 // ─── StatusBadge ─────────────────────────────────────────────────────────────

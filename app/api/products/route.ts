@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { withAdminAuth } from '@/lib/rbac';
 
 // GET all products
 export async function GET(request: NextRequest) {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST create new product
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
     try {
         const body = await request.json();
         const {
@@ -126,3 +127,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+export const POST = withAdminAuth(['SUPER_ADMIN', 'PRODUCT_MANAGER'], postHandler);

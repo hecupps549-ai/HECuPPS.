@@ -13,7 +13,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
-    const { cart, user, logoutUser } = useAppContext();
+    const { cart, user, logoutUser, theme, toggleTheme } = useAppContext();
 
     const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
             </div>
 
             {/* Main Header */}
-            <header className="sticky top-0 z-40 bg-white border-b border-brand-border">
+            <header className="sticky top-0 z-40 bg-white dark:bg-brand-black border-b border-brand-border dark:border-gray-800 transition-colors duration-300">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-3 items-center h-16 md:h-20">
 
@@ -52,8 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
                                     key={link.name}
                                     href={link.path}
                                     className={`text-sm font-medium uppercase tracking-wider transition-colors duration-150 ${isActive(link.path)
-                                        ? 'text-brand-black border-b-2 border-brand-black pb-0.5'
-                                        : 'text-gray-500 hover:text-brand-black'}`}
+                                        ? 'text-brand-black dark:text-white border-b-2 border-brand-black dark:border-white pb-0.5'
+                                        : 'text-gray-500 hover:text-brand-black dark:hover:text-white'}`}
                                 >
                                     {link.name}
                                 </Link>
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
                         <div className="lg:hidden flex items-center">
                             <button
                                 onClick={() => setIsMenuOpen(true)}
-                                className="p-2 text-brand-black"
+                                className="p-2 text-brand-black dark:text-white"
                                 aria-label="Open menu"
                             >
                                 <MenuIcon className="w-6 h-6" />
@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
 
                         {/* Center: Logo */}
                         <div className="flex justify-center">
-                            <Link href="/" className="text-2xl md:text-3xl font-playfair font-bold text-brand-black tracking-tight">
+                            <Link href="/" className="text-2xl md:text-3xl font-playfair font-bold text-brand-black dark:text-white tracking-tight">
                                 {siteName}
                             </Link>
                         </div>
@@ -86,8 +86,8 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
                                         key={link.name}
                                         href={link.path}
                                         className={`text-sm font-medium uppercase tracking-wider transition-colors duration-150 ${isActive(link.path)
-                                            ? 'text-brand-black border-b-2 border-brand-black pb-0.5'
-                                            : 'text-gray-500 hover:text-brand-black'}`}
+                                            ? 'text-brand-black dark:text-white border-b-2 border-brand-black dark:border-white pb-0.5'
+                                            : 'text-gray-500 hover:text-brand-black dark:hover:text-white'}`}
                                     >
                                         {link.name}
                                     </Link>
@@ -101,17 +101,26 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
                                         Log In
                                     </Link>
                                 ) : (
-                                    <button onClick={logoutUser} className="text-sm font-medium text-gray-600 hover:text-brand-black transition-colors uppercase tracking-wider">
+                                    <button onClick={logoutUser} className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors uppercase tracking-wider">
                                         Log Out
                                     </button>
                                 )}
                             </div>
 
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 text-brand-black dark:text-white hover:bg-brand-light dark:hover:bg-gray-800 rounded-full transition-colors"
+                                aria-label="Toggle theme"
+                            >
+                                {theme === 'light' ? '🌙' : '☀️'}
+                            </button>
+
                             {/* Cart */}
                             <Link href="/cart" className="relative" aria-label="Cart">
-                                <CartIcon className="w-6 h-6 text-brand-black" />
+                                <CartIcon className="w-6 h-6 text-brand-black dark:text-white" />
                                 {cartCount > 0 && (
-                                    <span className="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 rounded-full text-xs font-bold bg-brand-black text-white">
+                                    <span className="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 rounded-full text-xs font-bold bg-brand-black dark:bg-white text-white dark:text-brand-black">
                                         {cartCount}
                                     </span>
                                 )}
@@ -128,11 +137,11 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
                         onClick={() => setIsMenuOpen(false)}
                     />
                     {/* Drawer Panel */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-72 bg-white transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <div className="flex justify-between items-center p-5 border-b border-brand-border">
-                            <span className="text-xl font-playfair font-bold text-brand-black">{siteName}</span>
+                    <div className={`absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-brand-black transform transition-transform duration-300 ease-in-out border-r border-brand-border dark:border-gray-800 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                        <div className="flex justify-between items-center p-5 border-b border-brand-border dark:border-gray-800">
+                            <span className="text-xl font-playfair font-bold text-brand-black dark:text-white">{siteName}</span>
                             <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
-                                <CloseIcon className="h-6 w-6 text-brand-black" />
+                                <CloseIcon className="h-6 w-6 text-brand-black dark:text-white" />
                             </button>
                         </div>
                         <nav className="flex flex-col py-6">
@@ -172,15 +181,15 @@ export const Navbar: React.FC<NavbarProps> = ({ siteName = 'HECuPPS' }) => {
 
 export const Footer: React.FC<{ siteName?: string }> = ({ siteName = 'HECuPPS' }) => {
     return (
-        <footer className="bg-brand-light border-t border-brand-border">
+        <footer className="bg-brand-light dark:bg-brand-black border-t border-brand-border dark:border-gray-800 transition-colors duration-300">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* 4-column grid with dividers */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 lg:divide-x divide-brand-border py-14">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 lg:divide-x divide-brand-border dark:divide-gray-800 py-14">
                     {/* Shop */}
                     <div className="pb-8 sm:pb-0 lg:pr-10">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Shop</h3>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black dark:text-white mb-5">Shop</h3>
                         <ul className="space-y-3">
-                            <li><Link href="/products" className="text-sm text-gray-600 hover:text-brand-black transition-colors">All Hampers</Link></li>
+                            <li><Link href="/products" className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors border-b border-transparent hover:border-brand-black dark:hover:border-white pb-0.5">All Hampers</Link></li>
                             <li><Link href="/products?cat=Birthday" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Birthday Hampers</Link></li>
                             <li><Link href="/products?cat=Festive" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Festive Hampers</Link></li>
                             <li><Link href="/products?cat=Corporate" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Corporate Hampers</Link></li>
@@ -212,7 +221,7 @@ export const Footer: React.FC<{ siteName?: string }> = ({ siteName = 'HECuPPS' }
 
                     {/* Contact Us */}
                     <div className="pt-8 sm:pt-0 lg:pl-10">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black mb-5">Contact Us</h3>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-black dark:text-white mb-5">Contact Us</h3>
                         <ul className="space-y-3">
                             <li><Link href="/contact" className="text-sm text-gray-600 hover:text-brand-black transition-colors">Send us a message</Link></li>
                             <li>
