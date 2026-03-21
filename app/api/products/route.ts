@@ -48,6 +48,8 @@ async function postHandler(request: NextRequest) {
             status,
             featured,
             images,
+            whatsIncluded,
+            productExtras,
         } = body;
 
         console.log('[Product Creation] Request body:', JSON.stringify(body, null, 2));
@@ -97,6 +99,8 @@ async function postHandler(request: NextRequest) {
                 stock: parsedStock,
                 status: status || 'Active',
                 featured: featured || false,
+                whatsIncluded: whatsIncluded ? JSON.stringify(whatsIncluded) : null,
+                productExtras: productExtras ? JSON.stringify(productExtras) : null,
                 images: {
                     create: images?.map((img: any, index: number) => ({
                         url: img.url,

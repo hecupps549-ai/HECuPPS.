@@ -26,7 +26,14 @@ export async function GET(
             );
         }
 
-        return NextResponse.json({ product });
+        // Parse JSON fields safely
+        const parsed = {
+            ...product,
+            whatsIncluded: product.whatsIncluded ? JSON.parse(product.whatsIncluded) : null,
+            productExtras: product.productExtras ? JSON.parse(product.productExtras) : null,
+        };
+
+        return NextResponse.json({ product: parsed });
     } catch (error) {
         console.error('Error fetching product:', error);
         return NextResponse.json(
@@ -53,6 +60,8 @@ async function putHandler(
             status,
             featured,
             images,
+            whatsIncluded,
+            productExtras,
         } = body;
 
         const productId = parseInt(params.params.id);
@@ -68,6 +77,8 @@ async function putHandler(
             stock: parseInt(stock),
             status,
             featured,
+            whatsIncluded: whatsIncluded !== undefined ? (whatsIncluded ? JSON.stringify(whatsIncluded) : null) : undefined,
+            productExtras: productExtras !== undefined ? (productExtras ? JSON.stringify(productExtras) : null) : undefined,
         };
 
         // Handle images if provided

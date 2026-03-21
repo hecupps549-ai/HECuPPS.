@@ -4,6 +4,17 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Textarea, Button, Select, Card } from '@/components/UI';
 
+interface Theme {
+    label: string;
+}
+
+interface Addon {
+    emoji: string;
+    label: string;
+    priceINR: number;
+    priceCAD: number;
+}
+
 export default function NewProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -18,6 +29,13 @@ export default function NewProductPage() {
         featured: false,
     });
     const [imageUrls, setImageUrls] = useState<string[]>(['']);
+
+    // Advanced Experience Options state
+    const [whatsIncluded, setWhatsIncluded] = useState<string[]>(['']);
+    const [themes, setThemes] = useState<Theme[]>([{ label: '' }]);
+    const [addons, setAddons] = useState<Addon[]>([{ emoji: '', label: '', priceINR: 0, priceCAD: 0 }]);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [peaceOfMind, setPeaceOfMind] = useState('');
 
     const categories = ['Birthday', 'Festive', 'Corporate', 'Wedding', 'Anniversary', 'Thank You', 'Get Well Soon'];
     const statuses = ['Active', 'Inactive', 'OutOfStock'];
@@ -36,13 +54,31 @@ export default function NewProductPage() {
         setImageUrls(newUrls);
     };
 
-    const addImageUrl = () => {
-        setImageUrls([...imageUrls, '']);
-    };
+    const addImageUrl = () => { setImageUrls([...imageUrls, '']); };
+    const removeImageUrl = (index: number) => { setImageUrls(imageUrls.filter((_, i) => i !== index)); };
 
-    const removeImageUrl = (index: number) => {
-        setImageUrls(imageUrls.filter((_, i) => i !== index));
+    // What's Included helpers
+    const updateIncludedItem = (i: number, val: string) => {
+        const arr = [...whatsIncluded]; arr[i] = val; setWhatsIncluded(arr);
     };
+    const addIncludedItem = () => setWhatsIncluded([...whatsIncluded, '']);
+    const removeIncludedItem = (i: number) => setWhatsIncluded(whatsIncluded.filter((_, idx) => idx !== i));
+
+    // Themes helpers
+    const updateTheme = (i: number, val: string) => {
+        const arr = [...themes]; arr[i] = { label: val }; setThemes(arr);
+    };
+    const addTheme = () => setThemes([...themes, { label: '' }]);
+    const removeTheme = (i: number) => setThemes(themes.filter((_, idx) => idx !== i));
+
+    // Add-ons helpers
+    const updateAddon = (i: number, field: keyof Addon, val: string | number) => {
+        const arr = [...addons];
+        arr[i] = { ...arr[i], [field]: field === 'emoji' || field === 'label' ? val : Number(val) };
+        setAddons(arr);
+    };
+    const addAddon = () => setAddons([...addons, { emoji: '', label: '', priceINR: 0, priceCAD: 0 }]);
+    const removeAddon = (i: number) => setAddons(addons.filter((_, idx) => idx !== i));
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,6 +90,19 @@ export default function NewProductPage() {
                 .filter(url => url.trim())
                 .map(url => ({ url, altText: formData.name }));
 
+            // Build extras payload (only include non-empty values)
+            const cleanedIncluded = whatsIncluded.filter(s => s.trim());
+            const cleanedThemes = themes.filter(t => t.label.trim());
+            const cleanedAddons = addons.filter(a => a.label.trim());
+
+            const productExtras = {
+                themes: cleanedThemes.length > 0 ? cleanedThemes : undefined,
+                addons: cleanedAddons.length > 0 ? cleanedAddons : undefined,
+                showDatePicker: showDatePicker || undefined,
+                peaceOfMind: peaceOfMind.trim() || undefined,
+            };
+            const hasExtras = Object.values(productExtras).some(v => v !== undefined);
+
             const response = await fetch('/api/products', {
                 method: 'POST',
                 headers: { 
@@ -63,6 +112,8 @@ export default function NewProductPage() {
                 body: JSON.stringify({
                     ...formData,
                     images,
+                    whatsIncluded: cleanedIncluded.length > 0 ? cleanedIncluded : undefined,
+                    productExtras: hasExtras ? productExtras : undefined,
                 }),
             });
 
@@ -149,7 +200,7 @@ export default function NewProductPage() {
                     {/* Pricing */}
                     <Card className="p-6">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-                            Pricing & Inventory
+                            Pricing &amp; Inventory
                         </h2>
                         <div className="grid md:grid-cols-3 gap-4">
                             <Input
@@ -247,7 +298,6 @@ export default function NewProductPage() {
                                                 }
                                             }
 
-                                            // Add uploaded URLs to existing URLs
                                             setImageUrls(prev => {
                                                 const filtered = prev.filter(url => url.trim());
                                                 return [...filtered, ...uploadedUrls, ''];
@@ -259,7 +309,7 @@ export default function NewProductPage() {
                                             alert(error instanceof Error ? error.message : 'Failed to upload images');
                                         } finally {
                                             setLoading(false);
-                                            e.target.value = ''; // Reset input
+                                            e.target.value = '';
                                         }
                                     }}
                                     className="hidden"
@@ -328,6 +378,190 @@ export default function NewProductPage() {
                             >
                                 + Add Another Image URL
                             </button>
+                        </div>
+                    </Card>
+
+                    {/* ════════════════════════════════════════
+                        ADVANCED EXPERIENCE OPTIONS
+                    ════════════════════════════════════════ */}
+                    <Card className="p-6 border-2 border-dashed border-gray-200">
+                        <div className="mb-6">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                ✨ Advanced Experience Options
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Optional. These power the interactive features on the product detail page (theme selector, add-ons, etc.)
+                            </p>
+                        </div>
+
+                        <div className="space-y-8">
+                            {/* What's Included */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                                    📋 What's Included (Checklist)
+                                </label>
+                                <div className="space-y-2">
+                                    {whatsIncluded.map((item, i) => (
+                                        <div key={i} className="flex gap-2 items-center">
+                                            <span className="text-green-500 text-lg flex-shrink-0">✓</span>
+                                            <input
+                                                type="text"
+                                                value={item}
+                                                onChange={e => updateIncludedItem(i, e.target.value)}
+                                                placeholder={`e.g., Fairy Light Canopy`}
+                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-brand-black"
+                                            />
+                                            {whatsIncluded.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeIncludedItem(i)}
+                                                    className="text-red-400 hover:text-red-600 font-bold text-lg leading-none px-1"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <button type="button" onClick={addIncludedItem} className="mt-2 text-sm text-brand-black hover:underline font-medium">
+                                    + Add Item
+                                </button>
+                            </div>
+
+                            {/* Theme Selector */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                                    🎨 Theme Options
+                                </label>
+                                <p className="text-xs text-gray-400 mb-3">These appear as toggle buttons on the product page (e.g., "Boho Chic", "Minimalist White")</p>
+                                <div className="space-y-2">
+                                    {themes.map((theme, i) => (
+                                        <div key={i} className="flex gap-2 items-center">
+                                            <input
+                                                type="text"
+                                                value={theme.label}
+                                                onChange={e => updateTheme(i, e.target.value)}
+                                                placeholder={`e.g., Boho Chic`}
+                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-brand-black"
+                                            />
+                                            {themes.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeTheme(i)}
+                                                    className="text-red-400 hover:text-red-600 font-bold text-lg leading-none px-1"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <button type="button" onClick={addTheme} className="mt-2 text-sm text-brand-black hover:underline font-medium">
+                                    + Add Theme
+                                </button>
+                            </div>
+
+                            {/* Date Picker Toggle */}
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={showDatePicker}
+                                        onChange={e => setShowDatePicker(e.target.checked)}
+                                        className="w-4 h-4 text-brand-black border-gray-300 rounded"
+                                    />
+                                    <div>
+                                        <span className="text-sm font-bold text-gray-700 dark:text-gray-300">📅 Show Date &amp; Time Picker</span>
+                                        <p className="text-xs text-gray-400">Lets customers pick their preferred event date</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {/* Aesthetic Add-ons */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                                    🛒 Aesthetic Add-ons
+                                </label>
+                                <p className="text-xs text-gray-400 mb-3">Optional extras customers can toggle. Prices are added to the running total.</p>
+                                <div className="space-y-3">
+                                    {addons.map((addon, i) => (
+                                        <div key={i} className="grid grid-cols-12 gap-2 items-start p-3 border border-gray-200 rounded-lg bg-gray-50">
+                                            <div className="col-span-1">
+                                                <label className="block text-xs text-gray-500 mb-1">Emoji</label>
+                                                <input
+                                                    type="text"
+                                                    value={addon.emoji}
+                                                    onChange={e => updateAddon(i, 'emoji', e.target.value)}
+                                                    placeholder="🌹"
+                                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm text-center focus:outline-none focus:border-brand-black"
+                                                    maxLength={2}
+                                                />
+                                            </div>
+                                            <div className="col-span-5">
+                                                <label className="block text-xs text-gray-500 mb-1">Label</label>
+                                                <input
+                                                    type="text"
+                                                    value={addon.label}
+                                                    onChange={e => updateAddon(i, 'label', e.target.value)}
+                                                    placeholder="Premium Roses (12)"
+                                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-brand-black"
+                                                />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <label className="block text-xs text-gray-500 mb-1">+₹ (INR)</label>
+                                                <input
+                                                    type="number"
+                                                    value={addon.priceINR}
+                                                    onChange={e => updateAddon(i, 'priceINR', e.target.value)}
+                                                    placeholder="500"
+                                                    min="0"
+                                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-brand-black"
+                                                />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <label className="block text-xs text-gray-500 mb-1">+$ (CAD)</label>
+                                                <input
+                                                    type="number"
+                                                    value={addon.priceCAD}
+                                                    onChange={e => updateAddon(i, 'priceCAD', e.target.value)}
+                                                    placeholder="8"
+                                                    min="0"
+                                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-brand-black"
+                                                />
+                                            </div>
+                                            <div className="col-span-2 flex items-end justify-end pb-0.5">
+                                                {addons.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeAddon(i)}
+                                                        className="px-3 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded text-xs font-bold"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button type="button" onClick={addAddon} className="mt-2 text-sm text-brand-black hover:underline font-medium">
+                                    + Add Add-on
+                                </button>
+                            </div>
+
+                            {/* Peace of Mind */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                                    🛡️ Peace of Mind Guarantee
+                                </label>
+                                <p className="text-xs text-gray-400 mb-2">A short guarantee message shown in a green callout box on the product page.</p>
+                                <textarea
+                                    value={peaceOfMind}
+                                    onChange={e => setPeaceOfMind(e.target.value)}
+                                    rows={2}
+                                    placeholder="e.g., Secure payment. Free rescheduling up to 48 hours before. 100% money-back guarantee if we can't deliver."
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-brand-black"
+                                />
+                            </div>
                         </div>
                     </Card>
 
